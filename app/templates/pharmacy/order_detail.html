@@ -1,0 +1,652 @@
+{% extends "pharmacy/pharmacy_base.html" %}
+
+{% block pharmacy_content %}
+
+<style>
+    /* ─── BREADCRUMB ─── */
+    .breadcrumb-bar {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 12.5px;
+        color: #94a3b8;
+        margin-bottom: 22px;
+        font-weight: 500;
+    }
+
+    .breadcrumb-bar a { color: #64748b; text-decoration: none; transition: color 0.15s; }
+    .breadcrumb-bar a:hover { color: #0ea5e9; }
+    .breadcrumb-bar .sep { color: #cbd5e1; font-size: 11px; }
+    .breadcrumb-bar .current { color: #0f172a; font-weight: 600; }
+
+    /* ─── PAGE HEADING ─── */
+    .page-heading {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        margin-bottom: 24px;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .page-heading h1 {
+        font-size: 22px;
+        font-weight: 800;
+        color: #0f172a;
+        letter-spacing: -0.02em;
+        margin: 0;
+    }
+
+    .page-heading p { font-size: 13px; color: #94a3b8; margin: 3px 0 0; }
+
+    /* ─── LAYOUT ─── */
+    .detail-layout {
+        display: grid;
+        grid-template-columns: 1fr 300px;
+        gap: 20px;
+        align-items: start;
+    }
+
+    /* ─── SECTION CARD ─── */
+    .section-card {
+        background: white;
+        border-radius: 16px;
+        border: 1px solid rgba(0,0,0,0.06);
+        box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+        overflow: hidden;
+        margin-bottom: 16px;
+    }
+
+    .section-card:last-child { margin-bottom: 0; }
+
+    .section-card-header {
+        padding: 14px 22px;
+        border-bottom: 1px solid rgba(0,0,0,0.06);
+        background: #fafbfc;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+    }
+
+    .section-card-title {
+        font-size: 13.5px;
+        font-weight: 700;
+        color: #0f172a;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .section-card-title i { color: #0ea5e9; font-size: 15px; }
+    .section-card-body { padding: 20px 22px; }
+
+    /* ─── ORDER META GRID ─── */
+    .meta-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+    }
+
+    .meta-tile {
+        background: #f8fafc;
+        border-radius: 10px;
+        padding: 13px 15px;
+        border: 1px solid rgba(0,0,0,0.05);
+    }
+
+    .meta-tile-label {
+        font-size: 10.5px;
+        font-weight: 700;
+        letter-spacing: 0.07em;
+        text-transform: uppercase;
+        color: #94a3b8;
+        margin-bottom: 5px;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .meta-tile-label i { color: #0ea5e9; }
+
+    .meta-tile-val {
+        font-size: 14px;
+        font-weight: 700;
+        color: #0f172a;
+    }
+
+    .meta-tile-val.mono { font-family: 'DM Mono', monospace; font-weight: 500; }
+    .meta-tile.span-2   { grid-column: span 2; }
+
+    /* ─── STATUS PILL ─── */
+    .status-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 12px;
+        font-weight: 700;
+        padding: 5px 13px;
+        border-radius: 20px;
+    }
+
+    .status-pill::before {
+        content: '';
+        width: 6px; height: 6px;
+        border-radius: 50%;
+        flex-shrink: 0;
+    }
+
+    .pill-placed    { background: #eff6ff; color: #1d4ed8; }
+    .pill-placed::before    { background: #3b82f6; }
+    .pill-confirmed { background: #f0fdf4; color: #166534; }
+    .pill-confirmed::before { background: #22c55e; }
+    .pill-shipped   { background: #faf5ff; color: #7e22ce; }
+    .pill-shipped::before   { background: #a855f7; }
+    .pill-delivered { background: #f0fdf4; color: #14532d; }
+    .pill-delivered::before { background: #16a34a; box-shadow: 0 0 5px rgba(22,163,74,0.5); }
+    .pill-cancelled { background: #fef2f2; color: #991b1b; }
+    .pill-cancelled::before { background: #ef4444; }
+
+    /* ─── PROGRESS TRACKER ─── */
+    .tracker-wrap {
+        padding: 20px 22px 18px;
+        border-bottom: 1px solid rgba(0,0,0,0.06);
+    }
+
+    .tracker {
+        display: flex;
+        align-items: flex-start;
+        position: relative;
+    }
+
+    .tracker-line {
+        position: absolute;
+        top: 15px;
+        left: 15px;
+        right: 15px;
+        height: 3px;
+        background: #e2e8f0;
+        z-index: 0;
+    }
+
+    .tracker-fill {
+        position: absolute;
+        top: 0; left: 0;
+        height: 100%;
+        background: linear-gradient(90deg, #0ea5e9, #22c55e);
+        border-radius: 3px;
+        transition: width 0.5s ease;
+    }
+
+    .tracker-step {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        position: relative;
+        z-index: 1;
+    }
+
+    .tracker-dot {
+        width: 30px; height: 30px;
+        border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 13px;
+        font-weight: 700;
+        transition: all 0.3s;
+        border: 2px solid transparent;
+    }
+
+    .tracker-dot.done {
+        background: #0ea5e9;
+        color: white;
+        border-color: #0ea5e9;
+    }
+
+    .tracker-dot.active {
+        background: white;
+        color: #0ea5e9;
+        border-color: #0ea5e9;
+        box-shadow: 0 0 0 4px rgba(14,165,233,0.15);
+        animation: pulse 1.8s ease-in-out infinite;
+    }
+
+    .tracker-dot.done.last-done {
+        background: #22c55e;
+        border-color: #22c55e;
+    }
+
+    .tracker-dot.pending {
+        background: #f1f5f9;
+        color: #94a3b8;
+        border-color: #e2e8f0;
+    }
+
+    .tracker-label {
+        font-size: 11px;
+        font-weight: 600;
+        color: #94a3b8;
+        text-align: center;
+        line-height: 1.3;
+    }
+
+    .tracker-label.active-label { color: #0ea5e9; font-weight: 700; }
+    .tracker-label.done-label   { color: #475569; }
+
+    @keyframes pulse {
+        0%, 100% { box-shadow: 0 0 0 4px rgba(14,165,233,0.15); }
+        50%       { box-shadow: 0 0 0 7px rgba(14,165,233,0.08); }
+    }
+
+    /* Cancelled banner */
+    .cancelled-banner {
+        margin: 14px 22px 0;
+        background: #fef2f2;
+        border: 1px solid #fecaca;
+        border-radius: 9px;
+        padding: 11px 15px;
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        font-size: 13px;
+        font-weight: 600;
+        color: #991b1b;
+    }
+
+    /* ─── ITEMS TABLE ─── */
+    .items-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13.5px;
+    }
+
+    .items-table thead th {
+        font-size: 10.5px;
+        font-weight: 700;
+        letter-spacing: 0.07em;
+        text-transform: uppercase;
+        color: #94a3b8;
+        background: #f8fafc;
+        padding: 10px 16px;
+        border-bottom: 1px solid rgba(0,0,0,0.06);
+        white-space: nowrap;
+    }
+
+    .items-table tbody td {
+        padding: 13px 16px;
+        border-bottom: 1px solid rgba(0,0,0,0.05);
+        color: #334155;
+        vertical-align: middle;
+    }
+
+    .items-table tbody tr:last-child td { border-bottom: none; }
+
+    .item-name { font-weight: 700; color: #0f172a; }
+    .mono-val  { font-family: 'DM Mono', monospace; font-size: 13.5px; }
+
+    /* Grand total row */
+    .grand-total-row td {
+        font-size: 14px;
+        font-weight: 800;
+        color: #0f172a;
+        background: #f8fafc !important;
+        border-top: 2px dashed #e2e8f0;
+        padding: 14px 16px !important;
+    }
+
+    .grand-total-row .mono-val { font-size: 16px; color: #0ea5e9; }
+
+    /* ─── SIDEBAR ─── */
+    .sidebar-sticky { position: sticky; top: 88px; display: flex; flex-direction: column; gap: 16px; }
+
+    /* ─── UPDATE FORM ─── */
+    .field-label {
+        font-size: 11.5px;
+        font-weight: 700;
+        color: #475569;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        margin-bottom: 8px;
+    }
+
+    .field-label i { color: #0ea5e9; }
+
+    .status-select {
+        width: 100%;
+        appearance: none;
+        -webkit-appearance: none;
+        background: #f8fafc url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2.5'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 12px center;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 9px;
+        padding: 10px 34px 10px 14px;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-size: 13.5px;
+        font-weight: 600;
+        color: #0f172a;
+        cursor: pointer;
+        outline: none;
+        transition: all 0.15s;
+        margin-bottom: 12px;
+    }
+
+    .status-select:focus {
+        border-color: #0ea5e9;
+        box-shadow: 0 0 0 3px rgba(14,165,233,0.12);
+        background-color: white;
+    }
+
+    .btn-update-status {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        width: 100%;
+        padding: 11px;
+        border-radius: 9px;
+        background: #0ea5e9;
+        color: white;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-size: 13.5px;
+        font-weight: 700;
+        border: none;
+        cursor: pointer;
+        transition: all 0.18s;
+        box-shadow: 0 4px 14px rgba(14,165,233,0.26);
+    }
+
+    .btn-update-status:hover {
+        background: #0284c7;
+        transform: translateY(-1px);
+        box-shadow: 0 6px 18px rgba(14,165,233,0.34);
+    }
+
+    /* Cancelled notice */
+    .cancelled-notice {
+        background: #fef2f2;
+        border: 1px solid #fecaca;
+        border-radius: 10px;
+        padding: 14px 16px;
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        font-size: 13px;
+        color: #7f1d1d;
+        line-height: 1.5;
+    }
+
+    .cancelled-notice i { color: #ef4444; font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+
+    /* Customer card rows */
+    .customer-row {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 10px;
+        font-size: 13px;
+        color: #475569;
+        padding: 9px 0;
+        border-bottom: 1px solid rgba(0,0,0,0.05);
+    }
+
+    .customer-row:last-child { border-bottom: none; }
+    .customer-row-label { font-weight: 500; }
+    .customer-row-val   { font-weight: 700; color: #0f172a; text-align: right; }
+    .customer-row-val.mono { font-family: 'DM Mono', monospace; font-weight: 500; }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 860px) {
+        .detail-layout { grid-template-columns: 1fr; }
+        .sidebar-sticky { position: static; }
+        .meta-grid { grid-template-columns: 1fr 1fr; }
+    }
+
+    @media (max-width: 480px) {
+        .meta-grid { grid-template-columns: 1fr; }
+        .meta-tile.span-2 { grid-column: span 1; }
+    }
+</style>
+
+<!-- Breadcrumb -->
+<div class="breadcrumb-bar">
+    <a href="{{ url_for('pharmacy.orders') }}">Orders</a>
+    <span class="sep"><i class="bi bi-chevron-right"></i></span>
+    <span class="current">Order #{{ order.id }}</span>
+</div>
+
+<!-- Page Heading -->
+<div class="page-heading">
+    <div>
+        <h1>Order Detail</h1>
+        <p>Placed on {{ order.created_at.strftime("%d %b %Y, %I:%M %p") }}</p>
+    </div>
+    <span class="status-pill pill-{{ order.status | lower }}">
+        {{ order.status }}
+    </span>
+</div>
+
+<div class="detail-layout">
+
+    <!-- ══════════════ LEFT COLUMN ══════════════ -->
+    <div>
+
+        <!-- Order Meta -->
+        <div class="section-card">
+            <div class="section-card-header">
+                <div class="section-card-title">
+                    <i class="bi bi-receipt"></i> Order Information
+                </div>
+            </div>
+            <div class="section-card-body">
+                <div class="meta-grid">
+
+                    <div class="meta-tile">
+                        <div class="meta-tile-label"><i class="bi bi-hash"></i> Order ID</div>
+                        <div class="meta-tile-val mono">#{{ order.id }}</div>
+                    </div>
+
+                    <div class="meta-tile">
+                        <div class="meta-tile-label"><i class="bi bi-calendar3"></i> Date Placed</div>
+                        <div class="meta-tile-val">{{ order.created_at.strftime("%d %b %Y") }}</div>
+                    </div>
+
+                    <div class="meta-tile">
+                        <div class="meta-tile-label"><i class="bi bi-currency-rupee"></i> Order Total</div>
+                        <div class="meta-tile-val mono" style="color:#0ea5e9; font-size:18px;">
+                            ₹{{ order.total_amount }}
+                        </div>
+                    </div>
+
+                    <div class="meta-tile">
+                        <div class="meta-tile-label"><i class="bi bi-box-seam"></i> Items</div>
+                        <div class="meta-tile-val mono">{{ order.items|length }}</div>
+                    </div>
+
+                    {% if order.delivery_address %}
+                    <div class="meta-tile span-2">
+                        <div class="meta-tile-label"><i class="bi bi-geo-alt"></i> Delivery Address</div>
+                        <div class="meta-tile-val" style="font-size:13px; font-weight:500; line-height:1.5;">
+                            {{ order.delivery_address }}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                </div>
+            </div>
+
+            <!-- Progress Tracker -->
+            {% set steps = ['PLACED', 'CONFIRMED', 'SHIPPED', 'DELIVERED'] %}
+            {% set step_icons = ['bag-check', 'check-circle', 'truck', 'house-check'] %}
+            {% set current_idx = steps.index(order.status) if order.status in steps else -1 %}
+
+            {% if order.status != 'CANCELLED' %}
+            <div class="tracker-wrap">
+                <div class="tracker">
+                    <div class="tracker-line">
+                        <div class="tracker-fill"
+                             style="width: {{ (current_idx / (steps|length - 1) * 100) if current_idx >= 0 else 0 }}%">
+                        </div>
+                    </div>
+                    {% for step in steps %}
+                    {% set idx = loop.index0 %}
+                    <div class="tracker-step">
+                        <div class="tracker-dot
+                            {% if idx < current_idx %}done{% elif idx == current_idx %}active{% else %}pending{% endif %}
+                            {% if idx == current_idx and idx == steps|length - 1 %}last-done{% endif %}">
+                            {% if idx < current_idx %}
+                                <i class="bi bi-check2" style="font-size:12px;"></i>
+                            {% else %}
+                                <i class="bi bi-{{ step_icons[idx] }}" style="font-size:12px;"></i>
+                            {% endif %}
+                        </div>
+                        <div class="tracker-label
+                            {% if idx == current_idx %}active-label
+                            {% elif idx < current_idx %}done-label{% endif %}">
+                            {{ step | title }}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% else %}
+            <div class="cancelled-banner">
+                <i class="bi bi-x-circle-fill"></i>
+                This order has been cancelled and cannot be updated.
+            </div>
+            <div style="height:14px;"></div>
+            {% endif %}
+
+        </div>
+
+        <!-- Items Table -->
+        <div class="section-card">
+            <div class="section-card-header">
+                <div class="section-card-title">
+                    <i class="bi bi-capsule-pill"></i> Ordered Items
+                </div>
+                <span style="font-family:'DM Mono',monospace; font-size:11.5px; color:#94a3b8;">
+                    {{ order.items|length }} item{{ 's' if order.items|length != 1 }}
+                </span>
+            </div>
+            <div style="overflow-x:auto;">
+                <table class="items-table">
+                    <thead>
+                        <tr>
+                            <th style="padding-left:22px;">Medicine</th>
+                            <th>Qty</th>
+                            <th>Unit Price</th>
+                            <th style="padding-right:22px; text-align:right;">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in order.items %}
+                        <tr>
+                            <td style="padding-left:22px;">
+                                <div class="item-name">{{ item.name }}</div>
+                            </td>
+                            <td><span class="mono-val">× {{ item.quantity }}</span></td>
+                            <td><span class="mono-val">₹{{ item.price }}</span></td>
+                            <td style="padding-right:22px; text-align:right;">
+                                <span class="mono-val">₹{{ item.price * item.quantity }}</span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        <tr class="grand-total-row">
+                            <td colspan="3" style="padding-left:22px;">Grand Total</td>
+                            <td style="padding-right:22px; text-align:right;">
+                                <span class="mono-val">₹{{ order.total_amount }}</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ══════════════ RIGHT SIDEBAR ══════════════ -->
+    <div>
+        <div class="sidebar-sticky">
+
+            <!-- Customer Info -->
+            <div class="section-card">
+                <div class="section-card-header">
+                    <div class="section-card-title">
+                        <i class="bi bi-person-circle"></i> Customer
+                    </div>
+                </div>
+                <div class="section-card-body" style="padding:16px 18px;">
+                    <div class="customer-row">
+                        <span class="customer-row-label">Name</span>
+                        <span class="customer-row-val">{{ order.user.name }}</span>
+                    </div>
+                    {% if order.user.email %}
+                    <div class="customer-row">
+                        <span class="customer-row-label">Email</span>
+                        <span class="customer-row-val" style="font-size:12.5px; font-weight:500;">
+                            {{ order.user.email }}
+                        </span>
+                    </div>
+                    {% endif %}
+                    {% if order.user.phone %}
+                    <div class="customer-row">
+                        <span class="customer-row-label">Phone</span>
+                        <span class="customer-row-val mono">{{ order.user.phone }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Update Status / Cancelled Notice -->
+            {% if order.status != 'CANCELLED' %}
+            <div class="section-card">
+                <div class="section-card-header">
+                    <div class="section-card-title">
+                        <i class="bi bi-arrow-repeat"></i> Update Status
+                    </div>
+                </div>
+                <div class="section-card-body" style="padding:16px 18px;">
+                    <form method="POST">
+                        <div class="field-label">
+                            <i class="bi bi-toggles"></i> New Status
+                        </div>
+                        <select name="status" class="status-select">
+                            {% for step in ['PLACED', 'CONFIRMED', 'SHIPPED', 'DELIVERED'] %}
+                            <option value="{{ step }}"
+                                {{ 'selected' if order.status == step }}>
+                                {{ step }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                        <button type="submit" class="btn-update-status">
+                            <i class="bi bi-check2-circle" style="font-size:15px;"></i>
+                            Update Status
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% else %}
+            <div class="section-card">
+                <div class="section-card-header">
+                    <div class="section-card-title">
+                        <i class="bi bi-slash-circle"></i> Status
+                    </div>
+                </div>
+                <div class="section-card-body" style="padding:14px 18px;">
+                    <div class="cancelled-notice">
+                        <i class="bi bi-info-circle-fill"></i>
+                        This order was cancelled and its status can no longer be changed.
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}

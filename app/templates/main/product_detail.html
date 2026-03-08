@@ -1,0 +1,531 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+    /* ─── BREADCRUMB ─── */
+    .breadcrumb-bar {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 12.5px;
+        color: #94a3b8;
+        margin-bottom: 28px;
+        font-weight: 500;
+    }
+
+    .breadcrumb-bar a {
+        color: #64748b;
+        text-decoration: none;
+        transition: color 0.15s;
+    }
+
+    .breadcrumb-bar a:hover { color: #0ea5e9; }
+
+    .breadcrumb-bar .sep { color: #cbd5e1; font-size: 11px; }
+    .breadcrumb-bar .current { color: #0f172a; font-weight: 600; }
+
+    /* ─── LAYOUT ─── */
+    .product-wrap {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 32px;
+        margin-bottom: 48px;
+    }
+
+    /* ─── IMAGE PANEL ─── */
+    .image-panel {
+        background: white;
+        border-radius: 18px;
+        border: 1px solid rgba(0,0,0,0.06);
+        box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+        padding: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+        min-height: 380px;
+    }
+
+    .image-panel::before {
+        content: '';
+        position: absolute;
+        width: 280px; height: 280px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(14,165,233,0.06) 0%, transparent 70%);
+        top: 50%; left: 50%;
+        transform: translate(-50%, -50%);
+    }
+
+    .image-panel img {
+        max-height: 320px;
+        object-fit: contain;
+        position: relative;
+        z-index: 1;
+        transition: transform 0.35s ease;
+    }
+
+    .image-panel:hover img {
+        transform: scale(1.05);
+    }
+
+    .rx-overlay {
+        position: absolute;
+        top: 14px; right: 14px;
+        background: #fef2f2;
+        border: 1px solid #fecaca;
+        color: #dc2626;
+        font-size: 11px;
+        font-weight: 700;
+        padding: 5px 11px;
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        letter-spacing: 0.02em;
+    }
+
+    /* ─── INFO PANEL ─── */
+    .info-panel {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+    }
+
+    .med-category-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        background: #eff6ff;
+        color: #2563eb;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.07em;
+        text-transform: uppercase;
+        padding: 4px 11px;
+        border-radius: 20px;
+        margin-bottom: 12px;
+        width: fit-content;
+    }
+
+    .med-title {
+        font-size: 26px;
+        font-weight: 800;
+        color: #0f172a;
+        letter-spacing: -0.02em;
+        line-height: 1.25;
+        margin-bottom: 8px;
+    }
+
+    .med-manufacturer {
+        font-size: 13.5px;
+        color: #64748b;
+        margin-bottom: 14px;
+    }
+
+    .med-manufacturer strong {
+        color: #334155;
+        font-weight: 600;
+    }
+
+    /* Rating */
+    .rating-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 20px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid rgba(0,0,0,0.06);
+    }
+
+    .stars-block {
+        display: flex;
+        gap: 2px;
+    }
+
+    .stars-block i { color: #f59e0b; font-size: 15px; }
+    .stars-block i.empty { color: #e2e8f0; }
+
+    .rating-score {
+        font-family: 'DM Mono', monospace;
+        font-size: 14px;
+        font-weight: 500;
+        color: #0f172a;
+    }
+
+    .rating-count {
+        font-size: 12px;
+        color: #94a3b8;
+    }
+
+    .rating-divider {
+        width: 1px; height: 14px;
+        background: #e2e8f0;
+    }
+
+    /* Pricing */
+    .pricing-block {
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        border: 1px solid rgba(0,0,0,0.06);
+        border-radius: 14px;
+        padding: 18px 20px;
+        margin-bottom: 18px;
+    }
+
+    .price-row {
+        display: flex;
+        align-items: baseline;
+        gap: 12px;
+        margin-bottom: 5px;
+    }
+
+    .price-main {
+        font-family: 'DM Mono', monospace;
+        font-size: 32px;
+        font-weight: 500;
+        color: #0f172a;
+        line-height: 1;
+    }
+
+    .price-mrp {
+        font-family: 'DM Mono', monospace;
+        font-size: 15px;
+        color: #94a3b8;
+        text-decoration: line-through;
+    }
+
+    .discount-pill {
+        background: #fef3c7;
+        color: #92400e;
+        font-size: 11.5px;
+        font-weight: 700;
+        padding: 3px 9px;
+        border-radius: 20px;
+        letter-spacing: 0.02em;
+    }
+
+    .price-note {
+        font-size: 11.5px;
+        color: #94a3b8;
+    }
+
+    /* Stock */
+    .stock-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 16px;
+    }
+
+    .stock-dot {
+        width: 8px; height: 8px;
+        border-radius: 50%;
+        flex-shrink: 0;
+    }
+
+    .stock-dot.in { background: #22c55e; box-shadow: 0 0 6px rgba(34,197,94,0.5); }
+    .stock-dot.out { background: #ef4444; }
+
+    .stock-label {
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .stock-label.in { color: #16a34a; }
+    .stock-label.out { color: #dc2626; }
+
+    .stock-qty {
+        font-size: 12px;
+        color: #94a3b8;
+        font-family: 'DM Mono', monospace;
+    }
+
+    /* Delivery info */
+    .delivery-info {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 22px;
+    }
+
+    .delivery-chip {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        background: white;
+        border: 1px solid rgba(0,0,0,0.07);
+        border-radius: 8px;
+        padding: 9px 13px;
+        font-size: 12.5px;
+        font-weight: 500;
+        color: #334155;
+        flex: 1;
+    }
+
+    .delivery-chip i {
+        font-size: 16px;
+        color: #0ea5e9;
+    }
+
+    /* Add to Cart */
+    .cart-form {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .qty-control {
+        display: flex;
+        align-items: center;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 10px;
+        overflow: hidden;
+        background: white;
+    }
+
+    .qty-btn {
+        width: 38px; height: 48px;
+        display: flex; align-items: center; justify-content: center;
+        background: #f8fafc;
+        border: none;
+        color: #475569;
+        font-size: 18px;
+        cursor: pointer;
+        transition: background 0.15s;
+        font-weight: 600;
+    }
+
+    .qty-btn:hover { background: #e2e8f0; }
+
+    .qty-input {
+        width: 56px; height: 48px;
+        border: none;
+        text-align: center;
+        font-family: 'DM Mono', monospace;
+        font-size: 15px;
+        font-weight: 500;
+        color: #0f172a;
+        outline: none;
+        background: white;
+    }
+
+    /* hide number input arrows */
+    .qty-input::-webkit-outer-spin-button,
+    .qty-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+    .qty-input[type=number] { -moz-appearance: textfield; }
+
+    .btn-add-cart {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        height: 48px;
+        border-radius: 10px;
+        background: #0ea5e9;
+        color: white;
+        font-size: 14px;
+        font-weight: 700;
+        border: none;
+        cursor: pointer;
+        transition: all 0.18s;
+        box-shadow: 0 4px 14px rgba(14,165,233,0.3);
+    }
+
+    .btn-add-cart:hover {
+        background: #0284c7;
+        transform: translateY(-1px);
+        box-shadow: 0 6px 20px rgba(14,165,233,0.38);
+    }
+
+    /* ─── DESCRIPTION CARD ─── */
+    .desc-card {
+        background: white;
+        border-radius: 16px;
+        border: 1px solid rgba(0,0,0,0.06);
+        box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+        overflow: hidden;
+    }
+
+    .desc-header {
+        padding: 18px 24px;
+        border-bottom: 1px solid rgba(0,0,0,0.06);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .desc-header h5 {
+        font-size: 15px;
+        font-weight: 700;
+        color: #0f172a;
+        margin: 0;
+    }
+
+    .desc-header i {
+        color: #0ea5e9;
+        font-size: 17px;
+    }
+
+    .desc-body {
+        padding: 22px 24px;
+        font-size: 14px;
+        color: #475569;
+        line-height: 1.75;
+    }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 860px) {
+        .product-wrap {
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        .image-panel { min-height: 260px; padding: 24px; }
+        .image-panel img { max-height: 220px; }
+        .med-title { font-size: 22px; }
+        .price-main { font-size: 26px; }
+    }
+
+    @media (max-width: 480px) {
+        .delivery-info { flex-direction: column; gap: 8px; }
+        .cart-form { flex-direction: column; align-items: stretch; }
+        .qty-control { justify-content: center; }
+        .btn-add-cart { width: 100%; }
+    }
+</style>
+
+<!-- Breadcrumb -->
+<div class="breadcrumb-bar">
+    <a href="/">Home</a>
+    <span class="sep"><i class="bi bi-chevron-right"></i></span>
+    <a href="{{ url_for('main.search') }}">Medicines</a>
+    <span class="sep"><i class="bi bi-chevron-right"></i></span>
+    <span class="current">{{ medicine.name }}</span>
+</div>
+
+<!-- ══════════════ PRODUCT DETAIL ══════════════ -->
+<div class="product-wrap">
+
+    <!-- Left: Image -->
+    <div class="image-panel">
+        <img src="{{ url_for('static', filename=medicine.image_url) }}" alt="{{ medicine.name }}">
+        {% if medicine.requires_prescription %}
+        <div class="rx-overlay">
+            <i class="bi bi-file-medical"></i> Rx Required
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Right: Info -->
+    <div class="info-panel">
+
+        <div class="med-category-tag">
+            <i class="bi bi-capsule-pill"></i>
+            {{ medicine.category if medicine.category else "Medicine" }}
+        </div>
+
+        <h1 class="med-title">{{ medicine.name }}</h1>
+
+        <p class="med-manufacturer">
+            Manufactured by <strong>{{ medicine.manufacturer }}</strong>
+        </p>
+
+        <!-- Rating -->
+        <div class="rating-row">
+            <div class="stars-block">
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star empty"></i>
+            </div>
+            <span class="rating-score">4.0</span>
+            <div class="rating-divider"></div>
+            <span class="rating-count">124 reviews</span>
+        </div>
+
+        <!-- Pricing -->
+        <div class="pricing-block">
+            <div class="price-row">
+                <span class="price-main">₹{{ medicine.pricing.selling_price }}</span>
+                {% if medicine.pricing.mrp > medicine.pricing.selling_price %}
+                <span class="price-mrp">₹{{ medicine.pricing.mrp }}</span>
+                <span class="discount-pill">{{ medicine.calculate_discount() }}% OFF</span>
+                {% endif %}
+            </div>
+            <div class="price-note">Inclusive of all taxes</div>
+        </div>
+
+        <!-- Stock -->
+        <div class="stock-row">
+            {% if medicine.total_stock > 0 %}
+            <div class="stock-dot in"></div>
+            <span class="stock-label in">In Stock</span>
+            <span class="stock-qty">({{ medicine.total_stock }} units available)</span>
+            {% else %}
+            <div class="stock-dot out"></div>
+            <span class="stock-label out">Out of Stock</span>
+            {% endif %}
+        </div>
+
+        <!-- Delivery -->
+        <div class="delivery-info">
+            <div class="delivery-chip">
+                <i class="bi bi-truck"></i>
+                Free delivery in 2–3 days
+            </div>
+            <div class="delivery-chip">
+                <i class="bi bi-arrow-counterclockwise"></i>
+                7-day easy returns
+            </div>
+        </div>
+
+        <!-- Add to Cart -->
+        {% if medicine.total_stock > 0 %}
+        <form method="POST" action="{{ url_for('cart.add', slug=medicine.slug) }}">
+            <div class="cart-form">
+                <div class="qty-control">
+                    <button type="button" class="qty-btn" onclick="changeQty(-1)">−</button>
+                    <input type="number" name="quantity" id="qtyInput" class="qty-input"
+                           value="{{ session.get('cart', {}).get(medicine.slug, {}).get('quantity', 1) }}"
+                           min="1" max="{{ medicine.total_stock }}" readonly>
+                    <button type="button" class="qty-btn" onclick="changeQty(1)">+</button>
+                </div>
+                <button type="submit" class="btn-add-cart">
+                    <i class="bi bi-cart-plus"></i> Add to Cart
+                </button>
+            </div>
+        </form>
+        {% else %}
+        <button class="btn-add-cart" disabled style="background:#e2e8f0; color:#94a3b8; box-shadow:none; cursor:not-allowed;">
+            <i class="bi bi-x-circle"></i> Out of Stock
+        </button>
+        {% endif %}
+
+    </div>
+</div>
+
+<!-- ══════════════ DESCRIPTION ══════════════ -->
+<div class="desc-card">
+    <div class="desc-header">
+        <i class="bi bi-file-text"></i>
+        <h5>Product Description</h5>
+    </div>
+    <div class="desc-body">
+        {{ medicine.description }}
+    </div>
+</div>
+
+<script>
+    const qtyInput = document.getElementById('qtyInput');
+    const maxQty = {{ medicine.total_stock }};
+
+    function changeQty(delta) {
+        if (!qtyInput) return;
+        let val = parseInt(qtyInput.value) + delta;
+        val = Math.max(1, Math.min(maxQty, val));
+        qtyInput.value = val;
+    }
+</script>
+
+{% endblock %}

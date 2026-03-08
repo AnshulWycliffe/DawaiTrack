@@ -1,0 +1,408 @@
+{% extends "admin/admin_base.html" %}
+
+{% block page_title %}Audit Logs{% endblock %}
+
+{% block admin_content %}
+
+<style>
+    /* ─── PAGE HEADING ─── */
+    .page-heading {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        margin-bottom: 24px;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .page-heading h1 {
+        font-size: 22px;
+        font-weight: 800;
+        color: #0f172a;
+        letter-spacing: -0.02em;
+        margin: 0;
+    }
+
+    .page-heading p { font-size: 13px; color: #94a3b8; margin: 3px 0 0; }
+
+    /* ─── TOOLBAR ─── */
+    .toolbar {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 14px;
+        flex-wrap: wrap;
+    }
+
+    .search-box {
+        display: flex;
+        align-items: center;
+        background: white;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 9px;
+        overflow: hidden;
+        flex: 1;
+        min-width: 200px;
+        transition: border-color 0.15s;
+    }
+
+    .search-box:focus-within { border-color: #0ea5e9; }
+    .search-box i { padding: 0 12px; font-size: 14px; color: #94a3b8; flex-shrink: 0; }
+
+    .search-box input {
+        border: none;
+        outline: none;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-size: 13.5px;
+        color: #0f172a;
+        padding: 9px 12px 9px 0;
+        flex: 1;
+        background: transparent;
+    }
+
+    .search-box input::placeholder { color: #94a3b8; }
+
+    .filter-select {
+        appearance: none;
+        -webkit-appearance: none;
+        background: white url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2.5'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 10px center;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 9px;
+        padding: 9px 30px 9px 13px;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-size: 13px;
+        font-weight: 500;
+        color: #334155;
+        cursor: pointer;
+        outline: none;
+        transition: border-color 0.15s;
+    }
+
+    .filter-select:focus { border-color: #0ea5e9; }
+
+    /* ─── TABLE CARD ─── */
+    .table-card {
+        background: white;
+        border-radius: 16px;
+        border: 1px solid rgba(0,0,0,0.06);
+        box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+        overflow: hidden;
+    }
+
+    .table-card-header {
+        padding: 14px 22px;
+        border-bottom: 1px solid rgba(0,0,0,0.06);
+        background: #fafbfc;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .table-card-title {
+        font-size: 13.5px;
+        font-weight: 700;
+        color: #0f172a;
+        display: flex;
+        align-items: center;
+        gap: 7px;
+    }
+
+    .table-card-title i { color: #0ea5e9; }
+
+    .row-count {
+        font-family: 'DM Mono', monospace;
+        font-size: 11px;
+        font-weight: 500;
+        background: #f1f5f9;
+        color: #64748b;
+        padding: 3px 10px;
+        border-radius: 20px;
+    }
+
+    /* ─── TABLE ─── */
+    .log-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13.5px;
+    }
+
+    .log-table thead th {
+        font-size: 10.5px;
+        font-weight: 700;
+        letter-spacing: 0.07em;
+        text-transform: uppercase;
+        color: #94a3b8;
+        background: #f8fafc;
+        padding: 11px 16px;
+        border-bottom: 1px solid rgba(0,0,0,0.06);
+        white-space: nowrap;
+    }
+
+    .log-table tbody td {
+        padding: 13px 16px;
+        border-bottom: 1px solid rgba(0,0,0,0.05);
+        color: #334155;
+        vertical-align: middle;
+    }
+
+    .log-table tbody tr:last-child td { border-bottom: none; }
+    .log-table tbody tr:hover td { background: #fafbfc; }
+
+    /* Time cell */
+    .time-cell {
+        font-family: 'DM Mono', monospace;
+        font-size: 12px;
+        color: #64748b;
+        white-space: nowrap;
+    }
+
+    .time-cell .date-part { display: block; color: #94a3b8; font-size: 11px; margin-top: 1px; }
+
+    /* User cell */
+    .user-cell { font-weight: 700; color: #0f172a; font-size: 13px; }
+    .user-cell small { display: block; font-weight: 400; color: #94a3b8; font-size: 11.5px; }
+
+    /* Action badge */
+    .action-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 11px;
+        font-weight: 700;
+        padding: 4px 10px;
+        border-radius: 6px;
+        white-space: nowrap;
+        letter-spacing: 0.03em;
+        font-family: 'DM Mono', monospace;
+    }
+
+    /* Action chip color map — expand as needed */
+    .chip-create  { background: #f0fdf4; color: #166534; }
+    .chip-update  { background: #eff6ff; color: #1d4ed8; }
+    .chip-delete  { background: #fef2f2; color: #991b1b; }
+    .chip-login   { background: #faf5ff; color: #6b21a8; }
+    .chip-logout  { background: #f1f5f9; color: #475569; }
+    .chip-dispose { background: #f0fdf4; color: #14532d; }
+    .chip-default { background: #f1f5f9; color: #334155; }
+
+    /* Entity chip */
+    .entity-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        background: #f8fafc;
+        color: #475569;
+        font-size: 12px;
+        font-weight: 600;
+        padding: 3px 9px;
+        border-radius: 6px;
+        border: 1px solid rgba(0,0,0,0.06);
+    }
+
+    /* Description */
+    .desc-cell {
+        font-size: 13px;
+        color: #64748b;
+        max-width: 320px;
+    }
+
+    /* ─── EMPTY STATE ─── */
+    .empty-state {
+        text-align: center;
+        padding: 64px 32px;
+    }
+
+    .empty-icon {
+        width: 72px; height: 72px;
+        background: #f1f5f9;
+        border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        margin: 0 auto 16px;
+        font-size: 30px;
+        color: #94a3b8;
+    }
+
+    .empty-state h5 { font-size: 17px; font-weight: 800; color: #0f172a; margin-bottom: 6px; }
+    .empty-state p  { font-size: 13.5px; color: #64748b; }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 860px) {
+        .log-table { font-size: 12.5px; }
+        .log-table thead th, .log-table tbody td { padding: 10px 12px; }
+        .hide-md { display: none; }
+    }
+</style>
+
+<!-- Page Heading -->
+<div class="page-heading">
+    <div>
+        <h1>Audit Logs</h1>
+        <p>Track important system actions across all users</p>
+    </div>
+</div>
+
+<!-- Toolbar -->
+<div class="toolbar">
+    <div class="search-box">
+        <i class="bi bi-search"></i>
+        <input type="text" id="logSearch" placeholder="Search by user, action, entity or description...">
+    </div>
+    <select class="filter-select" id="actionFilter">
+        <option value="">All Actions</option>
+        <option value="create">Create</option>
+        <option value="update">Update</option>
+        <option value="delete">Delete</option>
+        <option value="login">Login</option>
+        <option value="logout">Logout</option>
+        <option value="dispose">Dispose</option>
+    </select>
+    <select class="filter-select" id="entityFilter">
+        <option value="">All Entities</option>
+        {% set seen = [] %}
+        {% for log in logs %}
+            {% if log.entity not in seen %}
+                {% if seen.append(log.entity) %}{% endif %}
+                <option value="{{ log.entity | lower }}">{{ log.entity }}</option>
+            {% endif %}
+        {% endfor %}
+    </select>
+</div>
+
+<!-- Table Card -->
+<div class="table-card">
+    <div class="table-card-header">
+        <div class="table-card-title">
+            <i class="bi bi-journal-text"></i> System Activity Log
+        </div>
+        <span class="row-count" id="visibleCount">{{ logs|length }} entries</span>
+    </div>
+
+    {% if logs %}
+    <div style="overflow-x:auto;">
+        <table class="log-table" id="logTable">
+            <thead>
+                <tr>
+                    <th style="padding-left:22px;">Time</th>
+                    <th>User</th>
+                    <th>Action</th>
+                    <th class="hide-md">Entity</th>
+                    <th class="hide-md">Description</th>
+                </tr>
+            </thead>
+            <tbody id="logBody">
+                {% for log in logs %}
+                {% set action_lower = log.action | lower %}
+                <tr class="log-row"
+                    data-user="{{ log.user.name | lower }}"
+                    data-action="{{ action_lower }}"
+                    data-entity="{{ log.entity | lower }}"
+                    data-desc="{{ log.description | lower }}">
+
+                    <td style="padding-left:22px;">
+                        <div class="time-cell">
+                            {{ log.created_at.strftime("%H:%M:%S") }}
+                            <span class="date-part">{{ log.created_at.strftime("%d %b %Y") }}</span>
+                        </div>
+                    </td>
+
+                    <td>
+                        <div class="user-cell">
+                            {{ log.user.name }}
+                            {% if log.user.role %}
+                            <small>{{ log.user.role }}</small>
+                            {% endif %}
+                        </div>
+                    </td>
+
+                    <td>
+                        <span class="action-chip
+                            {% if 'create' in action_lower %}chip-create
+                            {% elif 'update' in action_lower or 'edit' in action_lower %}chip-update
+                            {% elif 'delete' in action_lower or 'remove' in action_lower %}chip-delete
+                            {% elif 'login' in action_lower %}chip-login
+                            {% elif 'logout' in action_lower %}chip-logout
+                            {% elif 'dispose' in action_lower %}chip-dispose
+                            {% else %}chip-default
+                            {% endif %}">
+                            {{ log.action }}
+                        </span>
+                    </td>
+
+                    <td class="hide-md">
+                        <span class="entity-chip">
+                            {% if 'medicine' in log.entity | lower %}<i class="bi bi-capsule-pill"></i>
+                            {% elif 'user' in log.entity | lower %}<i class="bi bi-person"></i>
+                            {% elif 'order' in log.entity | lower %}<i class="bi bi-bag-check"></i>
+                            {% elif 'batch' in log.entity | lower %}<i class="bi bi-boxes"></i>
+                            {% elif 'disposal' in log.entity | lower %}<i class="bi bi-recycle"></i>
+                            {% else %}<i class="bi bi-grid"></i>
+                            {% endif %}
+                            {{ log.entity }}
+                        </span>
+                    </td>
+
+                    <td class="desc-cell hide-md">{{ log.description }}</td>
+
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div id="noResults" style="display:none;" class="empty-state">
+        <div class="empty-icon"><i class="bi bi-search"></i></div>
+        <h5>No logs found</h5>
+        <p>Try adjusting your search or filters.</p>
+    </div>
+
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-icon"><i class="bi bi-journal-x"></i></div>
+        <h5>No audit logs yet</h5>
+        <p>System actions will be recorded here.</p>
+    </div>
+    {% endif %}
+
+</div>
+
+<script>
+    const searchInput  = document.getElementById('logSearch');
+    const actionFilter = document.getElementById('actionFilter');
+    const entityFilter = document.getElementById('entityFilter');
+    const rows         = document.querySelectorAll('.log-row');
+    const noResults    = document.getElementById('noResults');
+    const countEl      = document.getElementById('visibleCount');
+
+    function filterLogs() {
+        const q      = searchInput.value.toLowerCase().trim();
+        const action = actionFilter.value.toLowerCase();
+        const entity = entityFilter.value.toLowerCase();
+        let visible  = 0;
+
+        rows.forEach(row => {
+            const matchQ = !q ||
+                row.dataset.user.includes(q)   ||
+                row.dataset.action.includes(q)  ||
+                row.dataset.entity.includes(q)  ||
+                row.dataset.desc.includes(q);
+
+            const matchA = !action || row.dataset.action.includes(action);
+            const matchE = !entity || row.dataset.entity.includes(entity);
+
+            const show = matchQ && matchA && matchE;
+            row.style.display = show ? '' : 'none';
+            if (show) visible++;
+        });
+
+        noResults.style.display = visible === 0 ? 'block' : 'none';
+        countEl.textContent = `${visible} entr${visible !== 1 ? 'ies' : 'y'}`;
+    }
+
+    searchInput.addEventListener('input', filterLogs);
+    actionFilter.addEventListener('change', filterLogs);
+    entityFilter.addEventListener('change', filterLogs);
+</script>
+
+{% endblock %}  

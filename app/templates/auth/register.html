@@ -1,0 +1,423 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+    .auth-wrap {
+        max-width: 440px;
+        margin: 20px auto 60px;
+    }
+
+    /* ─── CARD ─── */
+    .auth-card {
+        background: white;
+        border-radius: 20px;
+        border: 1px solid rgba(0,0,0,0.06);
+        box-shadow: 0 4px 24px rgba(0,0,0,0.07);
+        overflow: hidden;
+        animation: fadeUp 0.35s ease both;
+    }
+
+    .auth-band {
+        height: 4px;
+        background: linear-gradient(90deg, #f59e0b, #0ea5e9);
+    }
+
+    .auth-body { padding: 36px 36px 32px; }
+
+    /* Brand */
+    .auth-brand {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 28px;
+        text-align: center;
+    }
+
+    .auth-icon {
+        width: 52px; height: 52px;
+        background: linear-gradient(135deg, #f59e0b, #d97706);
+        border-radius: 14px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 22px;
+        color: white;
+        box-shadow: 0 6px 20px rgba(245,158,11,0.32);
+    }
+
+    .auth-title {
+        font-size: 22px;
+        font-weight: 800;
+        color: #0f172a;
+        letter-spacing: -0.02em;
+        margin: 0;
+    }
+
+    .auth-subtitle {
+        font-size: 13px;
+        color: #94a3b8;
+        margin: 2px 0 0;
+    }
+
+    /* ─── FIELDS ─── */
+    .field-wrap {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        margin-bottom: 16px;
+    }
+
+    .field-label {
+        font-size: 12px;
+        font-weight: 700;
+        color: #475569;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .field-label i { color: #f59e0b; font-size: 12px; }
+
+    .input-wrap { position: relative; }
+
+    .input-icon {
+        position: absolute;
+        left: 13px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 15px;
+        color: #94a3b8;
+        pointer-events: none;
+        transition: color 0.15s;
+    }
+
+    .form-input {
+        width: 100%;
+        background: #f8fafc;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 11px 14px 11px 40px;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-size: 13.5px;
+        color: #0f172a;
+        outline: none;
+        transition: all 0.15s;
+    }
+
+    .form-input:focus {
+        border-color: #f59e0b;
+        box-shadow: 0 0 0 3px rgba(245,158,11,0.12);
+        background: white;
+    }
+
+    .form-input:focus ~ .input-icon,
+    .input-wrap:focus-within .input-icon { color: #f59e0b; }
+
+    .form-input::placeholder { color: #94a3b8; }
+
+    /* Password toggle */
+    .pwd-toggle {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: #94a3b8;
+        font-size: 15px;
+        padding: 4px;
+        transition: color 0.15s;
+        line-height: 1;
+    }
+
+    .pwd-toggle:hover { color: #475569; }
+
+    /* Password strength bar */
+    .strength-wrap {
+        margin-top: 8px;
+        display: none;
+    }
+
+    .strength-wrap.show { display: block; }
+
+    .strength-bar-track {
+        height: 4px;
+        background: #e2e8f0;
+        border-radius: 4px;
+        overflow: hidden;
+        margin-bottom: 5px;
+    }
+
+    .strength-bar-fill {
+        height: 100%;
+        border-radius: 4px;
+        transition: width 0.3s ease, background 0.3s ease;
+        width: 0%;
+    }
+
+    .strength-label {
+        font-size: 11.5px;
+        font-weight: 600;
+        color: #94a3b8;
+    }
+
+    /* ─── TERMS ─── */
+    .terms-row {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        margin-bottom: 20px;
+        padding: 12px 14px;
+        background: #f8fafc;
+        border-radius: 9px;
+        border: 1.5px solid #e2e8f0;
+        cursor: pointer;
+        transition: border-color 0.15s;
+    }
+
+    .terms-row:has(input:checked) { border-color: #f59e0b; background: #fffbeb; }
+
+    .terms-row input[type="checkbox"] {
+        width: 16px; height: 16px;
+        accent-color: #f59e0b;
+        flex-shrink: 0;
+        margin-top: 1px;
+        cursor: pointer;
+    }
+
+    .terms-text {
+        font-size: 12.5px;
+        color: #475569;
+        line-height: 1.5;
+    }
+
+    .terms-text a {
+        color: #f59e0b;
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+    .terms-text a:hover { color: #d97706; }
+
+    /* ─── SUBMIT ─── */
+    .btn-register {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        width: 100%;
+        padding: 13px;
+        border-radius: 10px;
+        background: #f59e0b;
+        color: #0f172a;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-size: 14.5px;
+        font-weight: 700;
+        border: none;
+        cursor: pointer;
+        transition: all 0.18s;
+        box-shadow: 0 4px 14px rgba(245,158,11,0.28);
+        margin-bottom: 20px;
+    }
+
+    .btn-register:hover {
+        background: #d97706;
+        transform: translateY(-1px);
+        box-shadow: 0 6px 20px rgba(245,158,11,0.36);
+    }
+
+    /* ─── PERKS ─── */
+    .perks-row {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        padding: 16px;
+        background: #f8fafc;
+        border-radius: 10px;
+        border: 1px solid rgba(0,0,0,0.06);
+        margin-bottom: 4px;
+    }
+
+    .perk-item {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        font-size: 12.5px;
+        color: #334155;
+        font-weight: 500;
+    }
+
+    .perk-item i { color: #10b981; font-size: 14px; flex-shrink: 0; }
+
+    /* ─── FOOTER ─── */
+    .auth-footer {
+        text-align: center;
+        font-size: 13.5px;
+        color: #64748b;
+        padding: 18px 36px;
+        border-top: 1px solid rgba(0,0,0,0.06);
+        background: #fafbfc;
+    }
+
+    .auth-footer a {
+        color: #0ea5e9;
+        font-weight: 700;
+        text-decoration: none;
+        transition: color 0.15s;
+    }
+
+    .auth-footer a:hover { color: #0284c7; }
+
+    @keyframes fadeUp {
+        from { opacity: 0; transform: translateY(12px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+</style>
+
+<div class="auth-wrap">
+    <div class="auth-card">
+
+        <div class="auth-band"></div>
+
+        <div class="auth-body">
+
+            <!-- Brand -->
+            <div class="auth-brand">
+                <div class="auth-icon"><i class="bi bi-person-plus-fill"></i></div>
+                <div>
+                    <div class="auth-title">Create account</div>
+                    <div class="auth-subtitle">Join JeevanMeds — it's free</div>
+                </div>
+            </div>
+
+            <!-- Form -->
+            <form method="POST">
+
+                <!-- Name -->
+                <div class="field-wrap">
+                    <label class="field-label">
+                        <i class="bi bi-person"></i> Full Name
+                    </label>
+                    <div class="input-wrap">
+                        <input type="text" name="name" class="form-input"
+                               placeholder="Your full name" required autocomplete="name">
+                        <i class="bi bi-person input-icon"></i>
+                    </div>
+                </div>
+
+                <!-- Email -->
+                <div class="field-wrap">
+                    <label class="field-label">
+                        <i class="bi bi-envelope"></i> Email Address
+                    </label>
+                    <div class="input-wrap">
+                        <input type="email" name="email" class="form-input"
+                               placeholder="you@example.com" required autocomplete="email">
+                        <i class="bi bi-envelope input-icon"></i>
+                    </div>
+                </div>
+
+                <!-- Password -->
+                <div class="field-wrap">
+                    <label class="field-label">
+                        <i class="bi bi-lock"></i> Password
+                    </label>
+                    <div class="input-wrap">
+                        <input type="password" name="password" class="form-input"
+                               id="passwordInput"
+                               placeholder="Create a strong password"
+                               required autocomplete="new-password"
+                               oninput="checkStrength(this.value)">
+                        <i class="bi bi-lock input-icon"></i>
+                        <button type="button" class="pwd-toggle" id="pwdToggle">
+                            <i class="bi bi-eye" id="pwdIcon"></i>
+                        </button>
+                    </div>
+                    <!-- Strength indicator -->
+                    <div class="strength-wrap" id="strengthWrap">
+                        <div class="strength-bar-track">
+                            <div class="strength-bar-fill" id="strengthBar"></div>
+                        </div>
+                        <div class="strength-label" id="strengthLabel">Enter a password</div>
+                    </div>
+                </div>
+
+                <!-- Terms -->
+                <label class="terms-row">
+                    <input type="checkbox" required>
+                    <span class="terms-text">
+                        I agree to the <a href="#">Terms of Service</a> and
+                        <a href="#">Privacy Policy</a>
+                    </span>
+                </label>
+
+                <!-- Perks -->
+                <div class="perks-row">
+                    <div class="perk-item"><i class="bi bi-check-circle-fill"></i> Free delivery on all orders</div>
+                    <div class="perk-item"><i class="bi bi-check-circle-fill"></i> Track orders & manage prescriptions</div>
+                    <div class="perk-item"><i class="bi bi-check-circle-fill"></i> Expired medicine take-back program</div>
+                </div>
+
+                <button type="submit" class="btn-register" style="margin-top:16px;">
+                    <i class="bi bi-person-check-fill" style="font-size:15px;"></i>
+                    Create Account
+                </button>
+
+            </form>
+
+        </div>
+
+        <div class="auth-footer">
+            Already have an account?
+            <a href="{{ url_for('auth.login') }}">Sign in instead</a>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    // Password visibility toggle
+    const pwdInput  = document.getElementById('passwordInput');
+    const pwdToggle = document.getElementById('pwdToggle');
+    const pwdIcon   = document.getElementById('pwdIcon');
+
+    pwdToggle.addEventListener('click', () => {
+        const hidden = pwdInput.type === 'password';
+        pwdInput.type = hidden ? 'text' : 'password';
+        pwdIcon.className = hidden ? 'bi bi-eye-slash' : 'bi bi-eye';
+    });
+
+    // Password strength checker
+    function checkStrength(val) {
+        const wrap  = document.getElementById('strengthWrap');
+        const bar   = document.getElementById('strengthBar');
+        const label = document.getElementById('strengthLabel');
+
+        if (!val) { wrap.classList.remove('show'); return; }
+        wrap.classList.add('show');
+
+        let score = 0;
+        if (val.length >= 8)              score++;
+        if (/[A-Z]/.test(val))            score++;
+        if (/[0-9]/.test(val))            score++;
+        if (/[^A-Za-z0-9]/.test(val))     score++;
+
+        const levels = [
+            { pct: '20%', color: '#ef4444', text: 'Too weak'  },
+            { pct: '40%', color: '#f97316', text: 'Weak'      },
+            { pct: '65%', color: '#f59e0b', text: 'Fair'      },
+            { pct: '85%', color: '#22c55e', text: 'Strong'    },
+            { pct: '100%',color: '#10b981', text: 'Very strong'},
+        ];
+
+        const lvl = levels[score] || levels[0];
+        bar.style.width    = lvl.pct;
+        bar.style.background = lvl.color;
+        label.textContent  = lvl.text;
+        label.style.color  = lvl.color;
+    }
+</script>
+
+{% endblock %}

@@ -1,0 +1,46 @@
+jeevanmeds/
+│
+├── app/
+│   ├── __init__.py
+│   ├── config/
+│   │   ├── __init__.py
+│   │   ├── settings.py
+│   │   ├── constants.py
+│   │   ├── roles.py
+│   │   ├── env.py
+│   │
+│   ├── extensions/
+│   │   ├── database.py
+│   │   ├── login_manager.py
+│   │   ├── storage.py
+│   │   
+│   ├── models/
+│   │   ├── user.py
+│   │   ├── medicine.py
+│   │   ├── cart.py
+│   │   ├── order.py
+│   │   ├── pickup.py
+│   │
+│   ├── routes/
+│   │   ├── auth_routes.py
+│   │   ├── medicine_routes.py
+│   │   ├── cart_routes.py
+│   │   ├── order_routes.py
+│   │   ├── pickup_routes.py
+│   │   ├── admin_routes.py
+│   │
+│   ├── services/
+│   │   ├── auth_service.py
+│   │   ├── cart_service.py
+│   │   ├── order_service.py
+│   │   ├── expiry_service.py
+│   │   ├── pickup_service.py
+│   │
+│   ├── templates/
+│   ├── static/
+│   ├── utils/
+│   │   ├── decorators.py
+│   │   ├── helpers.py
+│
+├── run.py
+├── requirements.txt

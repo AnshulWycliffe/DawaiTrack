@@ -1,0 +1,550 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+    /* ─── PAGE HEADING ─── */
+    .page-heading {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        margin-bottom: 24px;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .page-heading h1 {
+        font-size: 22px;
+        font-weight: 800;
+        color: #0f172a;
+        letter-spacing: -0.02em;
+        margin: 0;
+    }
+
+    .page-heading p {
+        font-size: 13px;
+        color: #94a3b8;
+        margin: 3px 0 0;
+    }
+
+    .btn-create {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 10px 18px;
+        border-radius: 9px;
+        background: #0ea5e9;
+        color: white;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-size: 13.5px;
+        font-weight: 700;
+        text-decoration: none;
+        border: none;
+        transition: all 0.18s;
+        box-shadow: 0 4px 14px rgba(14,165,233,0.28);
+        white-space: nowrap;
+    }
+
+    .btn-create:hover {
+        background: #0284c7;
+        color: white;
+        transform: translateY(-1px);
+        box-shadow: 0 6px 18px rgba(14,165,233,0.36);
+    }
+
+    /* ─── INFO BANNER ─── */
+    .info-banner {
+        display: flex;
+        align-items: flex-start;
+        gap: 14px;
+        background: #f0f9ff;
+        border: 1px solid #bae6fd;
+        border-radius: 12px;
+        padding: 14px 18px;
+        margin-bottom: 22px;
+        font-size: 13px;
+        color: #0369a1;
+        line-height: 1.6;
+    }
+
+    .info-banner i { font-size: 18px; flex-shrink: 0; margin-top: 1px; color: #0ea5e9; }
+
+    /* ─── TABLE CARD ─── */
+    .table-card {
+        background: white;
+        border-radius: 16px;
+        border: 1px solid rgba(0,0,0,0.06);
+        box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+        overflow: hidden;
+    }
+
+    .table-card-header {
+        padding: 15px 22px;
+        border-bottom: 1px solid rgba(0,0,0,0.06);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: #fafbfc;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .table-card-title {
+        font-size: 13.5px;
+        font-weight: 700;
+        color: #0f172a;
+        display: flex;
+        align-items: center;
+        gap: 7px;
+    }
+
+    .table-card-title i { color: #0ea5e9; }
+
+    .req-count {
+        font-family: 'DM Mono', monospace;
+        font-size: 11px;
+        font-weight: 500;
+        background: #f1f5f9;
+        color: #64748b;
+        padding: 3px 10px;
+        border-radius: 20px;
+    }
+
+    /* ─── TABLE ─── */
+    .requests-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13.5px;
+    }
+
+    .requests-table thead th {
+        font-size: 10.5px;
+        font-weight: 700;
+        letter-spacing: 0.07em;
+        text-transform: uppercase;
+        color: #94a3b8;
+        background: #f8fafc;
+        padding: 11px 18px;
+        border-bottom: 1px solid rgba(0,0,0,0.06);
+        white-space: nowrap;
+    }
+
+    .requests-table tbody td {
+        padding: 15px 18px;
+        border-bottom: 1px solid rgba(0,0,0,0.05);
+        color: #334155;
+        vertical-align: middle;
+    }
+
+    .requests-table tbody tr:last-child td { border-bottom: none; }
+    .requests-table tbody tr:hover td { background: #fafbfc; }
+
+    /* Cell styles */
+    .td-id {
+        font-family: 'DM Mono', monospace;
+        font-size: 12.5px;
+        color: #64748b;
+        font-weight: 500;
+    }
+
+    .td-medicine {
+        font-weight: 700;
+        color: #0f172a;
+    }
+
+    .td-date, .td-qty {
+        font-family: 'DM Mono', monospace;
+        font-size: 13px;
+        color: #64748b;
+    }
+
+    .td-qty span {
+        background: #f1f5f9;
+        border-radius: 6px;
+        padding: 3px 8px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    /* Expiry date — highlight if near */
+    .expiry-warn {
+        color: #b45309;
+        background: #fffbeb;
+        border-radius: 6px;
+        padding: 3px 8px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    /* ─── STATUS PILLS ─── */
+    .status-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 11.5px;
+        font-weight: 700;
+        padding: 4px 11px;
+        border-radius: 20px;
+        letter-spacing: 0.02em;
+        white-space: nowrap;
+    }
+
+    .status-pill::before {
+        content: '';
+        width: 6px; height: 6px;
+        border-radius: 50%;
+        flex-shrink: 0;
+    }
+
+    .status-requested  { background: #f1f5f9; color: #475569; }
+    .status-requested::before  { background: #94a3b8; }
+    .status-approved   { background: #eff6ff; color: #1d4ed8; }
+    .status-approved::before   { background: #3b82f6; }
+    .status-collected  { background: #fffbeb; color: #92400e; }
+    .status-collected::before  { background: #f59e0b; }
+    .status-disposed   { background: #f0fdf4; color: #166534; }
+    .status-disposed::before   { background: #22c55e; }
+
+    /* ─── QR BUTTON ─── */
+    .btn-qr {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 7px 12px;
+        border-radius: 8px;
+        border: 1.5px solid #e2e8f0;
+        background: white;
+        color: #334155;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.15s;
+        white-space: nowrap;
+    }
+
+    .btn-qr:hover {
+        border-color: #0ea5e9;
+        color: #0ea5e9;
+        background: #f0f9ff;
+    }
+
+    /* ─── EMPTY STATE ─── */
+    .empty-state {
+        text-align: center;
+        padding: 64px 32px;
+    }
+
+    .empty-icon {
+        width: 72px; height: 72px;
+        background: #fef9f0;
+        border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        margin: 0 auto 16px;
+        font-size: 30px;
+        color: #f59e0b;
+    }
+
+    .empty-state h5 {
+        font-size: 17px;
+        font-weight: 800;
+        color: #0f172a;
+        margin-bottom: 6px;
+    }
+
+    .empty-state p {
+        font-size: 13.5px;
+        color: #64748b;
+        margin-bottom: 20px;
+        max-width: 360px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    /* ─── QR MODAL ─── */
+    .modal-content {
+        border: none;
+        border-radius: 18px;
+        overflow: hidden;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+    }
+
+    .modal-header {
+        background: #fafbfc;
+        border-bottom: 1px solid rgba(0,0,0,0.06);
+        padding: 16px 22px;
+    }
+
+    .modal-title {
+        font-size: 15px;
+        font-weight: 700;
+        color: #0f172a;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .modal-title i { color: #0ea5e9; }
+
+    .modal-body {
+        padding: 28px 24px 32px;
+    }
+
+    .qr-wrap {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 18px;
+    }
+
+    .qr-frame {
+        width: 220px; height: 220px;
+        border-radius: 14px;
+        border: 2px solid rgba(0,0,0,0.08);
+        padding: 12px;
+        background: white;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        display: flex; align-items: center; justify-content: center;
+        position: relative;
+    }
+
+    .qr-frame img {
+        border-radius: 6px;
+        width: 100%; height: 100%;
+        object-fit: contain;
+    }
+
+    /* Corner accents */
+    .qr-frame::before, .qr-frame::after {
+        content: '';
+        position: absolute;
+        width: 20px; height: 20px;
+        border-color: #0ea5e9;
+        border-style: solid;
+    }
+
+    .qr-frame::before {
+        top: -2px; left: -2px;
+        border-width: 3px 0 0 3px;
+        border-radius: 4px 0 0 0;
+    }
+
+    .qr-frame::after {
+        bottom: -2px; right: -2px;
+        border-width: 0 3px 3px 0;
+        border-radius: 0 0 4px 0;
+    }
+
+    .qr-req-id {
+        font-family: 'DM Mono', monospace;
+        font-size: 18px;
+        font-weight: 500;
+        color: #0f172a;
+    }
+
+    .qr-note {
+        font-size: 13px;
+        color: #64748b;
+        text-align: center;
+        max-width: 280px;
+        line-height: 1.5;
+    }
+
+    .qr-steps {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        width: 100%;
+        max-width: 300px;
+        background: #f8fafc;
+        border-radius: 10px;
+        padding: 14px 16px;
+    }
+
+    .qr-step {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 12.5px;
+        color: #475569;
+        font-weight: 500;
+    }
+
+    .qr-step-num {
+        width: 22px; height: 22px;
+        border-radius: 50%;
+        background: #0ea5e9;
+        color: white;
+        font-size: 11px;
+        font-weight: 700;
+        display: flex; align-items: center; justify-content: center;
+        flex-shrink: 0;
+    }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 768px) {
+        .requests-table { font-size: 12.5px; }
+        .requests-table thead th,
+        .requests-table tbody td { padding: 11px 12px; }
+        /* Hide date column on mobile */
+        .hide-mobile { display: none; }
+    }
+</style>
+
+<!-- Page Header -->
+<div class="page-heading">
+    <div>
+        <h1>Expired Medicine Requests</h1>
+        <p>Submit and track your expired medicine disposal requests</p>
+    </div>
+    <a href="{{ url_for('main.submit_expired_medicine') }}" class="btn-create">
+        <i class="bi bi-plus-lg"></i> New Request
+    </a>
+</div>
+
+<!-- Info Banner -->
+<div class="info-banner">
+    <i class="bi bi-info-circle-fill"></i>
+    <div>
+        <strong>How it works:</strong> Submit your expired medicines for safe disposal. Once approved, visit the pharmacy with your QR code for pickup. Our team ensures medicines are disposed of responsibly.
+    </div>
+</div>
+
+<!-- Table Card -->
+<div class="table-card">
+    <div class="table-card-header">
+        <div class="table-card-title">
+            <i class="bi bi-recycle"></i> Your Requests
+        </div>
+        <span class="req-count">{{ requests|length }} request{% if requests|length != 1 %}s{% endif %}</span>
+    </div>
+
+    {% if requests %}
+    <div style="overflow-x:auto;">
+        <table class="requests-table">
+            <thead>
+                <tr>
+                    <th>Request ID</th>
+                    <th>Medicine</th>
+                    <th>Expiry Date</th>
+                    <th>Qty</th>
+                    <th>Status</th>
+                    <th class="hide-mobile">Submitted</th>
+                    <th>QR Code</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for req in requests %}
+                <tr>
+                    <td class="td-id">#{{ req.id }}</td>
+
+                    <td class="td-medicine">{{ req.medicine_name }}</td>
+
+                    <td>
+                        <span class="expiry-warn">
+                            <i class="bi bi-calendar-x" style="font-size:11px;"></i>
+                            {{ req.expiry_date.strftime("%d %b %Y") }}
+                        </span>
+                    </td>
+
+                    <td class="td-qty"><span>{{ req.quantity }}</span></td>
+
+                    <td>
+                        {% set s = req.status | lower %}
+                        <span class="status-pill status-{{ s }}">{{ req.status }}</span>
+                    </td>
+
+                    <td class="td-date hide-mobile">
+                        {{ req.created_at.strftime("%d %b %Y") }}
+                    </td>
+
+                    <td>
+                        <button class="btn-qr"
+                                data-bs-toggle="modal"
+                                data-bs-target="#qrModal"
+                                data-id="{{ req.id }}"
+                                data-medicine="{{ req.medicine_name }}">
+                            <i class="bi bi-qr-code"></i> Show QR
+                        </button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-icon"><i class="bi bi-recycle"></i></div>
+        <h5>No requests yet</h5>
+        <p>You haven't submitted any expired medicine requests. Help us dispose of medicines safely — it's free!</p>
+        <a href="{{ url_for('main.submit_expired_medicine') }}" class="btn-create" style="display:inline-flex;">
+            <i class="bi bi-plus-lg"></i> Create Your First Request
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+<!-- ══════════════ QR MODAL ══════════════ -->
+<div class="modal fade" id="qrModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <div class="modal-title">
+                    <i class="bi bi-qr-code-scan"></i> Pickup QR Code
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body">
+                <div class="qr-wrap">
+
+                    <div class="qr-frame">
+                        <img id="qrImage" src="" alt="QR Code">
+                    </div>
+
+                    <div class="qr-req-id" id="qrReqId">—</div>
+
+                    <div class="qr-steps">
+                        <div class="qr-step">
+                            <span class="qr-step-num">1</span>
+                            Bring expired medicines to the pharmacy
+                        </div>
+                        <div class="qr-step">
+                            <span class="qr-step-num">2</span>
+                            Show this QR code to pharmacy staff
+                        </div>
+                        <div class="qr-step">
+                            <span class="qr-step-num">3</span>
+                            Hand over medicines for safe disposal
+                        </div>
+                    </div>
+
+                    <p class="qr-note">
+                        Valid for request <strong id="qrMedicineName"></strong>. Staff will scan this code to verify your request.
+                    </p>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    const qrModal = document.getElementById('qrModal');
+
+    qrModal.addEventListener('show.bs.modal', function (event) {
+        const btn = event.relatedTarget;
+        const reqId = btn.getAttribute('data-id');
+        const medicine = btn.getAttribute('data-medicine');
+
+        const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${reqId}&color=0f172a&bgcolor=ffffff`;
+
+        document.getElementById('qrImage').src = qrUrl;
+        document.getElementById('qrReqId').textContent = `Request #${reqId}`;
+        document.getElementById('qrMedicineName').textContent = medicine;
+    });
+</script>
+
+{% endblock %}

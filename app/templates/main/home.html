@@ -1,0 +1,648 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<style>
+    /* ─── HERO ─── */
+    .hero-carousel {
+        border-radius: 20px;
+        overflow: hidden;
+        margin-bottom: 56px;
+        box-shadow: 0 8px 40px rgba(0,0,0,0.12);
+    }
+
+    .hero-slide {
+        height: 460px;
+        background-size: cover;
+        background-position: center;
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+
+    .hero-slide::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(100deg, rgba(0,0,0,0.72) 40%, rgba(0,0,0,0.1) 100%);
+    }
+
+    .slide-1 { background-image: url('https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?w=1400&q=80'); }
+    .slide-2 { background-image: url('https://images.unsplash.com/photo-1585435557343-3b092031a831?w=1400&q=80'); }
+    .slide-3 { background-image: url('https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=1400&q=80'); }
+
+    .hero-content {
+        position: relative;
+        z-index: 2;
+        padding: 0 56px;
+        max-width: 600px;
+    }
+
+    .hero-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: rgba(14,165,233,0.2);
+        border: 1px solid rgba(14,165,233,0.4);
+        color: #7dd3fc;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        padding: 5px 12px;
+        border-radius: 20px;
+        margin-bottom: 16px;
+    }
+
+    .hero-content h1 {
+        font-size: 38px;
+        font-weight: 800;
+        color: white;
+        line-height: 1.18;
+        letter-spacing: -0.03em;
+        margin-bottom: 14px;
+    }
+
+    .hero-content h1 span {
+        color: #fbbf24;
+    }
+
+    .hero-content p {
+        font-size: 15.5px;
+        color: rgba(255,255,255,0.72);
+        line-height: 1.6;
+        margin-bottom: 24px;
+        font-weight: 400;
+    }
+
+    .hero-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: #f59e0b;
+        color: #0f172a;
+        font-weight: 700;
+        font-size: 14px;
+        padding: 12px 24px;
+        border-radius: 10px;
+        text-decoration: none;
+        transition: all 0.18s;
+        box-shadow: 0 4px 20px rgba(245,158,11,0.35);
+    }
+
+    .hero-btn:hover {
+        background: #d97706;
+        color: #0f172a;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 24px rgba(245,158,11,0.4);
+    }
+
+    /* Carousel controls */
+    .carousel-control-prev,
+    .carousel-control-next {
+        width: 44px; height: 44px;
+        background: rgba(255,255,255,0.15);
+        border: 1px solid rgba(255,255,255,0.2);
+        border-radius: 50%;
+        top: 50%; transform: translateY(-50%);
+        bottom: auto;
+        backdrop-filter: blur(8px);
+        transition: background 0.2s;
+        margin: 0 16px;
+    }
+
+    .carousel-control-prev:hover,
+    .carousel-control-next:hover {
+        background: rgba(255,255,255,0.28);
+    }
+
+    .carousel-control-prev-icon,
+    .carousel-control-next-icon {
+        width: 16px; height: 16px;
+    }
+
+    .carousel-indicators {
+        margin-bottom: 20px;
+    }
+
+    .carousel-indicators button {
+        width: 28px; height: 3px;
+        border-radius: 3px;
+        background: rgba(255,255,255,0.4);
+        border: none;
+        transition: all 0.2s;
+    }
+
+    .carousel-indicators button.active {
+        background: #f59e0b;
+        width: 40px;
+    }
+
+    /* ─── SECTION HEADING ─── */
+    .section-head {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        margin-bottom: 22px;
+    }
+
+    .section-head h2 {
+        font-size: 20px;
+        font-weight: 800;
+        color: #0f172a;
+        letter-spacing: -0.02em;
+        margin: 0;
+    }
+
+    .section-head p {
+        font-size: 13px;
+        color: #64748b;
+        margin: 3px 0 0;
+    }
+
+    .section-link {
+        font-size: 13px;
+        font-weight: 600;
+        color: #0ea5e9;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        white-space: nowrap;
+    }
+
+    .section-link:hover { color: #0284c7; }
+
+    /* ─── TRUST STRIP ─── */
+    .trust-strip {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 48px;
+        flex-wrap: wrap;
+    }
+
+    .trust-item {
+        flex: 1;
+        min-width: 160px;
+        background: white;
+        border: 1px solid rgba(0,0,0,0.06);
+        border-radius: 12px;
+        padding: 16px 18px;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+    }
+
+    .trust-icon {
+        width: 42px; height: 42px;
+        border-radius: 10px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 19px;
+        flex-shrink: 0;
+    }
+
+    .trust-text strong {
+        display: block;
+        font-size: 13px;
+        font-weight: 700;
+        color: #0f172a;
+        line-height: 1.2;
+    }
+
+    .trust-text span {
+        font-size: 11.5px;
+        color: #64748b;
+    }
+
+    /* ─── CATEGORY CARDS ─── */
+    .category-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+        gap: 14px;
+        margin-bottom: 56px;
+    }
+
+    .category-card {
+        border-radius: 16px;
+        padding: 24px 16px 20px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.22s;
+        text-decoration: none;
+        display: block;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .category-card::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: rgba(255,255,255,0);
+        transition: background 0.2s;
+    }
+
+    .category-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 12px 32px rgba(0,0,0,0.18);
+    }
+
+    .category-card:hover::after {
+        background: rgba(255,255,255,0.08);
+    }
+
+    .cat-icon {
+        width: 54px; height: 54px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.22);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 24px;
+        margin: 0 auto 12px;
+        color: white;
+    }
+
+    .category-card h6 {
+        color: white;
+        font-size: 13px;
+        font-weight: 700;
+        margin: 0;
+        line-height: 1.3;
+    }
+
+    .bg-women   { background: linear-gradient(135deg, #db2777, #ec4899); }
+    .bg-men     { background: linear-gradient(135deg, #1d4ed8, #3b82f6); }
+    .bg-kids    { background: linear-gradient(135deg, #d97706, #f59e0b); }
+    .bg-heart   { background: linear-gradient(135deg, #dc2626, #f87171); }
+    .bg-diabetes{ background: linear-gradient(135deg, #7c3aed, #a78bfa); }
+    .bg-immunity{ background: linear-gradient(135deg, #059669, #34d399); }
+
+    /* ─── MEDICINE CARDS ─── */
+    .medicine-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 16px;
+        margin-bottom: 56px;
+    }
+
+    .medicine-card {
+        background: white;
+        border-radius: 14px;
+        border: 1px solid rgba(0,0,0,0.06);
+        box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        transition: all 0.22s;
+        position: relative;
+    }
+
+    .medicine-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 28px rgba(0,0,0,0.1);
+        border-color: rgba(14,165,233,0.2);
+    }
+
+    .discount-badge {
+        position: absolute;
+        top: 10px; left: 10px;
+        background: #ef4444;
+        color: white;
+        font-size: 10.5px;
+        font-weight: 700;
+        padding: 3px 9px;
+        border-radius: 20px;
+        z-index: 2;
+        letter-spacing: 0.02em;
+    }
+
+    .med-img-wrap {
+        background: #f8fafc;
+        display: flex; align-items: center; justify-content: center;
+        padding: 20px;
+        height: 148px;
+        border-bottom: 1px solid rgba(0,0,0,0.04);
+    }
+
+    .med-img-wrap img {
+        max-height: 110px;
+        object-fit: contain;
+        transition: transform 0.25s;
+    }
+
+    .medicine-card:hover .med-img-wrap img {
+        transform: scale(1.06);
+    }
+
+    .med-body {
+        padding: 14px 14px 16px;
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+    }
+
+    .med-name {
+        font-size: 14px;
+        font-weight: 700;
+        color: #0f172a;
+        margin-bottom: 3px;
+        line-height: 1.3;
+    }
+
+    .med-mfg {
+        font-size: 11.5px;
+        color: #94a3b8;
+        margin-bottom: 8px;
+    }
+
+    .med-rating {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        margin-bottom: 10px;
+    }
+
+    .stars {
+        color: #f59e0b;
+        font-size: 12px;
+        letter-spacing: 1px;
+    }
+
+    .rating-count {
+        font-size: 11px;
+        color: #94a3b8;
+    }
+
+    .med-pricing {
+        display: flex;
+        align-items: baseline;
+        gap: 6px;
+        margin-bottom: 8px;
+    }
+
+    .med-price {
+        font-family: 'DM Mono', monospace;
+        font-size: 18px;
+        font-weight: 500;
+        color: #0f172a;
+    }
+
+    .med-mrp {
+        font-family: 'DM Mono', monospace;
+        font-size: 12.5px;
+        color: #94a3b8;
+        text-decoration: line-through;
+    }
+
+    .stock-in {
+        font-size: 11px;
+        font-weight: 600;
+        color: #16a34a;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        margin-bottom: 12px;
+    }
+
+    .stock-out {
+        font-size: 11px;
+        font-weight: 600;
+        color: #dc2626;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        margin-bottom: 12px;
+    }
+
+    .stock-in::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: #22c55e; }
+    .stock-out::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: #ef4444; }
+
+    .btn-view {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        width: 100%;
+        padding: 9px;
+        border-radius: 8px;
+        border: 1.5px solid #0ea5e9;
+        color: #0ea5e9;
+        font-size: 13px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.15s;
+        background: transparent;
+        margin-top: auto;
+    }
+
+    .btn-view:hover {
+        background: #0ea5e9;
+        color: white;
+    }
+
+    /* Empty state */
+    .empty-state {
+        text-align: center;
+        padding: 60px 24px;
+        color: #94a3b8;
+    }
+
+    .empty-state i {
+        font-size: 48px;
+        display: block;
+        margin-bottom: 12px;
+        color: #cbd5e1;
+    }
+
+    .empty-state h5 {
+        font-size: 16px;
+        font-weight: 700;
+        color: #475569;
+        margin-bottom: 6px;
+    }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 768px) {
+        .hero-slide { height: 300px; }
+        .hero-content { padding: 0 28px; }
+        .hero-content h1 { font-size: 24px; }
+        .hero-content p { font-size: 14px; }
+        .category-grid { grid-template-columns: repeat(3, 1fr); gap: 10px; }
+        .medicine-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+        .trust-strip { gap: 8px; }
+        .trust-item { min-width: 140px; padding: 12px 14px; }
+    }
+
+    @media (max-width: 480px) {
+        .category-grid { grid-template-columns: repeat(2, 1fr); }
+        .medicine-grid { grid-template-columns: 1fr 1fr; }
+        .hero-content { padding: 0 20px; }
+        .hero-content h1 { font-size: 20px; }
+    }
+</style>
+
+<!-- ══════════════ HERO CAROUSEL ══════════════ -->
+<div id="heroCarousel" class="carousel slide carousel-fade hero-carousel" data-bs-ride="carousel" data-bs-interval="5000">
+
+    <div class="carousel-indicators">
+        <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="0" class="active"></button>
+        <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="1"></button>
+        <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="2"></button>
+    </div>
+
+    <div class="carousel-inner">
+
+        <div class="carousel-item active">
+            <div class="hero-slide slide-1">
+                <div class="hero-content">
+                    <div class="hero-tag"><i class="bi bi-shield-check-fill"></i> Trusted Pharmacy</div>
+                    <h1>Your <span>Trusted</span> Online Pharmacy</h1>
+                    <p>Quality medicines delivered safely to your doorstep. Verified, authentic, and affordable.</p>
+                    <a href="#medicines" class="hero-btn">Shop Now <i class="bi bi-arrow-right"></i></a>
+                </div>
+            </div>
+        </div>
+
+        <div class="carousel-item">
+            <div class="hero-slide slide-2">
+                <div class="hero-content">
+                    <div class="hero-tag"><i class="bi bi-heart-pulse-fill"></i> Chronic Care</div>
+                    <h1>Care for Your <span>Heart</span> & Health</h1>
+                    <p>Essential medicines for diabetes, hypertension, and chronic conditions — always in stock.</p>
+                    <a href="{{ url_for('main.search') }}?category=Heart" class="hero-btn">Explore <i class="bi bi-arrow-right"></i></a>
+                </div>
+            </div>
+        </div>
+
+        <div class="carousel-item">
+            <div class="hero-slide slide-3">
+                <div class="hero-content">
+                    <div class="hero-tag"><i class="bi bi-capsule-pill"></i> Wellness</div>
+                    <h1>Boost <span>Immunity</span> Every Day</h1>
+                    <p>Premium vitamins, supplements, and wellness products at the best prices.</p>
+                    <a href="{{ url_for('main.search') }}?category=Immunity" class="hero-btn">View Products <i class="bi bi-arrow-right"></i></a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon"></span>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next">
+        <span class="carousel-control-next-icon"></span>
+    </button>
+
+</div>
+
+<!-- ══════════════ TRUST STRIP ══════════════ -->
+<div class="trust-strip">
+    <div class="trust-item">
+        <div class="trust-icon" style="background:#eff6ff; color:#2563eb;"><i class="bi bi-truck"></i></div>
+        <div class="trust-text">
+            <strong>Free Delivery</strong>
+            <span>On all orders</span>
+        </div>
+    </div>
+    <div class="trust-item">
+        <div class="trust-icon" style="background:#f0fdf4; color:#16a34a;"><i class="bi bi-patch-check-fill"></i></div>
+        <div class="trust-text">
+            <strong>100% Genuine</strong>
+            <span>Verified medicines only</span>
+        </div>
+    </div>
+    <div class="trust-item">
+        <div class="trust-icon" style="background:#fffbeb; color:#b45309;"><i class="bi bi-arrow-counterclockwise"></i></div>
+        <div class="trust-text">
+            <strong>Easy Returns</strong>
+            <span>7-day return policy</span>
+        </div>
+    </div>
+    <div class="trust-item">
+        <div class="trust-icon" style="background:#fdf4ff; color:#9333ea;"><i class="bi bi-headset"></i></div>
+        <div class="trust-text">
+            <strong>24/7 Support</strong>
+            <span>Always here to help</span>
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════ CATEGORIES ══════════════ -->
+<div class="section-head">
+    <div>
+        <h2>Shop by Health Concern</h2>
+        <p>Browse medicines by category</p>
+    </div>
+    <a href="{{ url_for('main.search') }}" class="section-link">View all <i class="bi bi-arrow-right"></i></a>
+</div>
+
+<div class="category-grid">
+    {% for cat in MEDICINE_CATEGORIES_UI %}
+    <a href="{{ url_for('main.search') }}?category={{ cat.name }}" class="category-card {{ cat.color }}">
+        <div class="cat-icon"><i class="bi {{ cat.icon }}"></i></div>
+        <h6>{{ cat.name }}</h6>
+    </a>
+    {% endfor %}
+</div>
+
+<!-- ══════════════ MEDICINES ══════════════ -->
+<div id="medicines" class="section-head">
+    <div>
+        <h2>Available Medicines</h2>
+        <p>{{ medicines|length }} products found</p>
+    </div>
+</div>
+
+{% if medicines|length == 0 %}
+<div class="empty-state">
+    <i class="bi bi-capsule"></i>
+    <h5>No medicines found</h5>
+    <p>Try a different search term or browse by category above.</p>
+</div>
+{% else %}
+<div class="medicine-grid">
+    {% for medicine in medicines %}
+    <div class="medicine-card">
+
+        {% if medicine.pricing.mrp > medicine.pricing.selling_price %}
+        <span class="discount-badge">{{ medicine.calculate_discount() }}% OFF</span>
+        {% endif %}
+
+        <div class="med-img-wrap">
+            <img src="{{ url_for('static', filename=medicine.image_url) }}" alt="{{ medicine.name }}">
+        </div>
+
+        <div class="med-body">
+            <div class="med-name">{{ medicine.name }}</div>
+            <div class="med-mfg">{{ medicine.manufacturer }}</div>
+
+            <div class="med-rating">
+                <span class="stars">★★★★☆</span>
+                <span class="rating-count">(124)</span>
+            </div>
+
+            <div class="med-pricing">
+                <span class="med-price">₹{{ medicine.pricing.selling_price }}</span>
+                {% if medicine.pricing.mrp > medicine.pricing.selling_price %}
+                <span class="med-mrp">₹{{ medicine.pricing.mrp }}</span>
+                {% endif %}
+            </div>
+
+            {% if medicine.total_stock > 0 %}
+            <div class="stock-in">In Stock</div>
+            {% else %}
+            <div class="stock-out">Out of Stock</div>
+            {% endif %}
+
+            <a href="{{ url_for('main.product_detail', slug=medicine.slug) }}" class="btn-view">
+                <i class="bi bi-eye"></i> View Product
+            </a>
+        </div>
+
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+{% endblock %}

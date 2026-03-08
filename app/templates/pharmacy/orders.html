@@ -1,0 +1,601 @@
+{% extends "pharmacy/pharmacy_base.html" %}
+
+{% block pharmacy_content %}
+
+<style>
+    /* ─── PAGE HEADING ─── */
+    .page-heading {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        margin-bottom: 24px;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .page-heading h1 {
+        font-size: 22px;
+        font-weight: 800;
+        color: #0f172a;
+        letter-spacing: -0.02em;
+        margin: 0;
+    }
+
+    .page-heading p { font-size: 13px; color: #94a3b8; margin: 3px 0 0; }
+
+    /* ─── STATS STRIP ─── */
+    .stats-strip {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+
+    .stat-chip {
+        background: white;
+        border-radius: 12px;
+        border: 1px solid rgba(0,0,0,0.06);
+        box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+        padding: 14px 16px;
+        display: flex;
+        align-items: center;
+        gap: 11px;
+        cursor: pointer;
+        transition: all 0.15s;
+    }
+
+    .stat-chip:hover { border-color: #0ea5e9; box-shadow: 0 2px 10px rgba(14,165,233,0.12); }
+    .stat-chip.active { border-color: #0ea5e9; background: #f0f9ff; box-shadow: 0 2px 10px rgba(14,165,233,0.15); }
+
+    .stat-chip-icon {
+        width: 36px; height: 36px;
+        border-radius: 9px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 16px;
+        flex-shrink: 0;
+    }
+
+    .stat-chip-val {
+        font-family: 'DM Mono', monospace;
+        font-size: 19px;
+        font-weight: 500;
+        color: #0f172a;
+        line-height: 1;
+        margin-bottom: 2px;
+    }
+
+    .stat-chip-label { font-size: 11px; color: #94a3b8; font-weight: 500; }
+
+    /* ─── TOOLBAR ─── */
+    .toolbar {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 14px;
+        flex-wrap: wrap;
+    }
+
+    .search-box {
+        display: flex;
+        align-items: center;
+        background: white;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 9px;
+        overflow: hidden;
+        flex: 1;
+        min-width: 200px;
+        transition: border-color 0.15s;
+    }
+
+    .search-box:focus-within { border-color: #0ea5e9; }
+    .search-box i { padding: 0 12px; font-size: 14px; color: #94a3b8; flex-shrink: 0; }
+
+    .search-box input {
+        border: none;
+        outline: none;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-size: 13.5px;
+        color: #0f172a;
+        padding: 9px 12px 9px 0;
+        flex: 1;
+        background: transparent;
+    }
+
+    .search-box input::placeholder { color: #94a3b8; }
+
+    .filter-select {
+        appearance: none;
+        -webkit-appearance: none;
+        background: white url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2.5'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 10px center;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 9px;
+        padding: 9px 30px 9px 13px;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-size: 13px;
+        font-weight: 500;
+        color: #334155;
+        cursor: pointer;
+        outline: none;
+        transition: border-color 0.15s;
+    }
+
+    .filter-select:focus { border-color: #0ea5e9; }
+
+    /* ─── TABLE CARD ─── */
+    .table-card {
+        background: white;
+        border-radius: 16px;
+        border: 1px solid rgba(0,0,0,0.06);
+        box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+        overflow: hidden;
+    }
+
+    .table-card-header {
+        padding: 14px 22px;
+        border-bottom: 1px solid rgba(0,0,0,0.06);
+        background: #fafbfc;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .table-card-title {
+        font-size: 13.5px;
+        font-weight: 700;
+        color: #0f172a;
+        display: flex;
+        align-items: center;
+        gap: 7px;
+    }
+
+    .table-card-title i { color: #0ea5e9; }
+
+    .order-count {
+        font-family: 'DM Mono', monospace;
+        font-size: 11px;
+        font-weight: 500;
+        background: #f1f5f9;
+        color: #64748b;
+        padding: 3px 10px;
+        border-radius: 20px;
+    }
+
+    /* ─── TABLE ─── */
+    .orders-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13.5px;
+    }
+
+    .orders-table thead th {
+        font-size: 10.5px;
+        font-weight: 700;
+        letter-spacing: 0.07em;
+        text-transform: uppercase;
+        color: #94a3b8;
+        background: #f8fafc;
+        padding: 11px 16px;
+        border-bottom: 1px solid rgba(0,0,0,0.06);
+        white-space: nowrap;
+    }
+
+    .orders-table tbody td {
+        padding: 14px 16px;
+        border-bottom: 1px solid rgba(0,0,0,0.05);
+        color: #334155;
+        vertical-align: middle;
+    }
+
+    .orders-table tbody tr:last-child td { border-bottom: none; }
+    .orders-table tbody tr:hover td { background: #fafbfc; }
+    .orders-table tbody tr.row-cancelled td { background: #fefafa; }
+    .orders-table tbody tr.row-cancelled:hover td { background: #fef2f2; }
+
+    /* ID cell */
+    .order-id {
+        font-family: 'DM Mono', monospace;
+        font-size: 12.5px;
+        font-weight: 500;
+        color: #64748b;
+    }
+
+    /* Customer cell */
+    .customer-cell { font-weight: 600; color: #0f172a; }
+    .customer-cell small { font-weight: 400; color: #94a3b8; font-size: 11.5px; display: block; margin-top: 1px; }
+
+    /* Date cell */
+    .date-cell { font-family: 'DM Mono', monospace; font-size: 13px; color: #64748b; }
+
+    /* Amount */
+    .amount-cell { font-family: 'DM Mono', monospace; font-size: 14px; font-weight: 500; color: #0f172a; }
+
+    /* ─── STATUS PILLS ─── */
+    .status-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 11.5px;
+        font-weight: 700;
+        padding: 4px 11px;
+        border-radius: 20px;
+        white-space: nowrap;
+    }
+
+    .status-pill::before {
+        content: '';
+        width: 6px; height: 6px;
+        border-radius: 50%;
+        flex-shrink: 0;
+    }
+
+    .pill-placed    { background: #eff6ff; color: #1d4ed8; }
+    .pill-placed::before    { background: #3b82f6; }
+    .pill-confirmed { background: #f0f9ff; color: #0369a1; }
+    .pill-confirmed::before { background: #0ea5e9; }
+    .pill-shipped   { background: #fffbeb; color: #92400e; }
+    .pill-shipped::before   { background: #f59e0b; }
+    .pill-delivered { background: #f0fdf4; color: #166534; }
+    .pill-delivered::before { background: #22c55e; box-shadow: 0 0 4px rgba(34,197,94,0.5); }
+    .pill-cancelled { background: #fef2f2; color: #991b1b; }
+    .pill-cancelled::before { background: #ef4444; }
+
+    /* ─── UPDATE STATUS DROPDOWN ─── */
+    .status-select {
+        appearance: none;
+        -webkit-appearance: none;
+        background: #f8fafc url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2.5'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 8px center;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 7px;
+        padding: 6px 26px 6px 10px;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-size: 12px;
+        font-weight: 600;
+        color: #334155;
+        cursor: pointer;
+        outline: none;
+        transition: border-color 0.15s;
+        min-width: 120px;
+    }
+
+    .status-select:focus { border-color: #0ea5e9; }
+
+    /* ─── ACTION BUTTONS ─── */
+    .action-cell { display: flex; align-items: center; gap: 6px; }
+
+    .act-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 6px 11px;
+        border-radius: 7px;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-size: 12px;
+        font-weight: 600;
+        text-decoration: none;
+        border: 1.5px solid transparent;
+        cursor: pointer;
+        transition: all 0.15s;
+        white-space: nowrap;
+        background: none;
+    }
+
+    .act-btn-view   { border-color: #bfdbfe; background: #eff6ff; color: #1d4ed8; }
+    .act-btn-view:hover { background: #3b82f6; border-color: #3b82f6; color: white; }
+
+    .act-btn-cancel { border-color: #fecaca; background: #fef2f2; color: #dc2626; }
+    .act-btn-cancel:hover { background: #ef4444; border-color: #ef4444; color: white; }
+
+    /* ─── EMPTY STATE ─── */
+    .empty-state { text-align: center; padding: 64px 32px; }
+
+    .empty-icon {
+        width: 72px; height: 72px;
+        background: #f1f5f9;
+        border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        margin: 0 auto 16px;
+        font-size: 30px;
+        color: #94a3b8;
+    }
+
+    .empty-state h5 { font-size: 17px; font-weight: 800; color: #0f172a; margin-bottom: 6px; }
+    .empty-state p  { font-size: 13.5px; color: #64748b; }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 1000px) {
+        .stats-strip { grid-template-columns: repeat(3, 1fr); }
+    }
+
+    @media (max-width: 700px) {
+        .stats-strip { grid-template-columns: repeat(2, 1fr); }
+        .orders-table { font-size: 12.5px; }
+        .orders-table thead th, .orders-table tbody td { padding: 10px 12px; }
+        .hide-md { display: none; }
+    }
+</style>
+
+<!-- Page Heading -->
+<div class="page-heading">
+    <div>
+        <h1>Orders Management</h1>
+        <p>View, update and manage all customer orders</p>
+    </div>
+</div>
+
+<!-- Stats Strip (clickable filters) -->
+<div class="stats-strip">
+    <div class="stat-chip active" onclick="filterByStatus('')" id="chip-all">
+        <div class="stat-chip-icon" style="background:#f1f5f9; color:#475569;">
+            <i class="bi bi-bag"></i>
+        </div>
+        <div>
+            <div class="stat-chip-val">{{ orders|length }}</div>
+            <div class="stat-chip-label">All Orders</div>
+        </div>
+    </div>
+    <div class="stat-chip" onclick="filterByStatus('PLACED')" id="chip-placed">
+        <div class="stat-chip-icon" style="background:#eff6ff; color:#1d4ed8;">
+            <i class="bi bi-clock"></i>
+        </div>
+        <div>
+            <div class="stat-chip-val">{{ orders|selectattr('status','eq','PLACED')|list|length }}</div>
+            <div class="stat-chip-label">Placed</div>
+        </div>
+    </div>
+    <div class="stat-chip" onclick="filterByStatus('CONFIRMED')" id="chip-confirmed">
+        <div class="stat-chip-icon" style="background:#f0f9ff; color:#0369a1;">
+            <i class="bi bi-check-circle"></i>
+        </div>
+        <div>
+            <div class="stat-chip-val">{{ orders|selectattr('status','eq','CONFIRMED')|list|length }}</div>
+            <div class="stat-chip-label">Confirmed</div>
+        </div>
+    </div>
+    <div class="stat-chip" onclick="filterByStatus('SHIPPED')" id="chip-shipped">
+        <div class="stat-chip-icon" style="background:#fffbeb; color:#b45309;">
+            <i class="bi bi-truck"></i>
+        </div>
+        <div>
+            <div class="stat-chip-val">{{ orders|selectattr('status','eq','SHIPPED')|list|length }}</div>
+            <div class="stat-chip-label">Shipped</div>
+        </div>
+    </div>
+    <div class="stat-chip" onclick="filterByStatus('DELIVERED')" id="chip-delivered">
+        <div class="stat-chip-icon" style="background:#f0fdf4; color:#16a34a;">
+            <i class="bi bi-bag-check"></i>
+        </div>
+        <div>
+            <div class="stat-chip-val">{{ orders|selectattr('status','eq','DELIVERED')|list|length }}</div>
+            <div class="stat-chip-label">Delivered</div>
+        </div>
+    </div>
+</div>
+
+<!-- Toolbar -->
+<div class="toolbar">
+    <div class="search-box">
+        <i class="bi bi-search"></i>
+        <input type="text" id="orderSearch" placeholder="Search by order ID or customer name...">
+    </div>
+    <select class="filter-select" id="statusFilterDrop">
+        <option value="">All Status</option>
+        <option value="PLACED">Placed</option>
+        <option value="CONFIRMED">Confirmed</option>
+        <option value="SHIPPED">Shipped</option>
+        <option value="DELIVERED">Delivered</option>
+        <option value="CANCELLED">Cancelled</option>
+    </select>
+</div>
+
+<!-- Table Card -->
+<div class="table-card">
+    <div class="table-card-header">
+        <div class="table-card-title">
+            <i class="bi bi-bag-heart"></i> All Orders
+        </div>
+        <span class="order-count" id="visibleCount">{{ orders|length }} orders</span>
+    </div>
+
+    {% if orders %}
+    <div style="overflow-x:auto;">
+        <table class="orders-table" id="ordersTable">
+            <thead>
+                <tr>
+                    <th style="padding-left:22px;">Order ID</th>
+                    <th>Customer</th>
+                    <th class="hide-md">Date</th>
+                    <th>Status</th>
+                    <th>Total</th>
+                    <th style="padding-right:22px;">Actions</th>
+                </tr>
+            </thead>
+            <tbody id="ordersBody">
+                {% for order in orders %}
+                <tr class="order-row row-{{ order.status | lower }}"
+                    data-id="{{ order.id }}"
+                    data-customer="{{ order.user.name | lower }}"
+                    data-status="{{ order.status }}">
+
+                    <td style="padding-left:22px;">
+                        <span class="order-id">#{{ order.id }}</span>
+                    </td>
+
+                    <td>
+                        <div class="customer-cell">
+                            {{ order.user.name }}
+                            <small>{{ order.user.email if order.user.email }}</small>
+                        </div>
+                    </td>
+
+                    <td class="hide-md">
+                        <span class="date-cell">{{ order.created_at.strftime("%d %b %Y") }}</span>
+                    </td>
+
+                    <td>
+                        {% set s = order.status | lower %}
+                        <span class="status-pill pill-{{ s }}">{{ order.status }}</span>
+                    </td>
+
+                    <td>
+                        <span class="amount-cell">₹{{ order.total_amount }}</span>
+                    </td>
+
+                    <td style="padding-right:22px;">
+                        <div class="action-cell">
+                            <a href="/pharmacy/orders/{{ order.id }}" class="act-btn act-btn-view">
+                                <i class="bi bi-eye"></i> View
+                            </a>
+                            {% if order.status != "CANCELLED" %}
+                            <form method="POST" action="/pharmacy/cancel_orders/{{ order.id }}"
+                                  style="display:inline;"
+                                  onsubmit="return confirmCancel(event, '{{ order.id }}', '{{ order.user.name }}')">
+                                <button type="submit" class="act-btn act-btn-cancel">
+                                    <i class="bi bi-x-circle"></i> Cancel
+                                </button>
+                            </form>
+                            {% endif %}
+                        </div>
+                    </td>
+
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- No results -->
+    <div id="noResults" style="display:none;" class="empty-state">
+        <div class="empty-icon"><i class="bi bi-search"></i></div>
+        <h5>No orders found</h5>
+        <p>Try adjusting your search or filter.</p>
+    </div>
+
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-icon"><i class="bi bi-bag-x"></i></div>
+        <h5>No orders yet</h5>
+        <p>Customer orders will appear here once they start placing them.</p>
+    </div>
+    {% endif %}
+
+</div>
+
+<!-- Cancel Confirmation Modal -->
+<div id="cancelModal" style="
+    display:none; position:fixed; inset:0; z-index:1000;
+    background:rgba(0,0,0,0.4); backdrop-filter:blur(4px);
+    align-items:center; justify-content:center;">
+    <div style="
+        background:white; border-radius:16px; padding:28px 28px 24px;
+        max-width:380px; width:90%;
+        box-shadow:0 20px 60px rgba(0,0,0,0.2);">
+        <div style="width:48px;height:48px;background:#fef2f2;border-radius:12px;
+             display:flex;align-items:center;justify-content:center;
+             font-size:22px;color:#ef4444;margin-bottom:14px;">
+            <i class="bi bi-x-circle-fill"></i>
+        </div>
+        <div style="font-size:17px;font-weight:800;color:#0f172a;margin-bottom:6px;">
+            Cancel Order?
+        </div>
+        <div style="font-size:13.5px;color:#64748b;margin-bottom:22px;" id="cancelModalText">
+            This action cannot be undone.
+        </div>
+        <div style="display:flex;gap:10px;justify-content:flex-end;">
+            <button onclick="dismissCancel()"
+                style="padding:9px 18px;border-radius:8px;border:1.5px solid #e2e8f0;
+                background:white;color:#475569;font-family:'Plus Jakarta Sans',sans-serif;
+                font-size:13px;font-weight:600;cursor:pointer;">
+                Keep Order
+            </button>
+            <button id="confirmCancelBtn"
+                style="padding:9px 18px;border-radius:8px;border:none;
+                background:#ef4444;color:white;font-family:'Plus Jakarta Sans',sans-serif;
+                font-size:13px;font-weight:700;cursor:pointer;
+                box-shadow:0 4px 12px rgba(239,68,68,0.3);">
+                Cancel Order
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ── Search & filter ──
+    const searchInput   = document.getElementById('orderSearch');
+    const statusDrop    = document.getElementById('statusFilterDrop');
+    const rows          = document.querySelectorAll('.order-row');
+    const noResults     = document.getElementById('noResults');
+    const countEl       = document.getElementById('visibleCount');
+    let   activeChipStatus = '';
+
+    function applyFilters() {
+        const q      = searchInput.value.toLowerCase().trim();
+        const status = statusDrop.value || activeChipStatus;
+        let visible  = 0;
+
+        rows.forEach(row => {
+            const id       = row.dataset.id;
+            const customer = row.dataset.customer;
+            const rstatus  = row.dataset.status;
+
+            const matchQ = !q || id.includes(q) || customer.includes(q);
+            const matchS = !status || rstatus === status;
+
+            const show = matchQ && matchS;
+            row.style.display = show ? '' : 'none';
+            if (show) visible++;
+        });
+
+        noResults.style.display = visible === 0 ? 'block' : 'none';
+        countEl.textContent = `${visible} order${visible !== 1 ? 's' : ''}`;
+    }
+
+    searchInput.addEventListener('input', applyFilters);
+    statusDrop.addEventListener('change', () => {
+        activeChipStatus = '';
+        document.querySelectorAll('.stat-chip').forEach(c => c.classList.remove('active'));
+        document.getElementById('chip-all').classList.add('active');
+        applyFilters();
+    });
+
+    // ── Chip filter ──
+    function filterByStatus(status) {
+        activeChipStatus = status;
+        statusDrop.value = '';
+
+        document.querySelectorAll('.stat-chip').forEach(c => c.classList.remove('active'));
+        const chipId = status ? `chip-${status.toLowerCase()}` : 'chip-all';
+        const chip = document.getElementById(chipId);
+        if (chip) chip.classList.add('active');
+
+        applyFilters();
+    }
+
+    // ── Cancel confirmation ──
+    let pendingCancelForm = null;
+
+    function confirmCancel(e, orderId, customerName) {
+        e.preventDefault();
+        pendingCancelForm = e.target;
+        document.getElementById('cancelModalText').textContent =
+            `Order #${orderId} for ${customerName} will be cancelled and the customer will be notified.`;
+        document.getElementById('cancelModal').style.display = 'flex';
+        return false;
+    }
+
+    document.getElementById('confirmCancelBtn').addEventListener('click', () => {
+        if (pendingCancelForm) pendingCancelForm.submit();
+    });
+
+    function dismissCancel() {
+        document.getElementById('cancelModal').style.display = 'none';
+        pendingCancelForm = null;
+    }
+
+    document.getElementById('cancelModal').addEventListener('click', function(e) {
+        if (e.target === this) dismissCancel();
+    });
+</script>
+
+{% endblock %}

@@ -1,0 +1,600 @@
+{% extends "admin/admin_base.html" %}
+
+{% block admin_content %}
+
+<style>
+    /* ─── PAGE HEADING ─── */
+    .page-heading {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        margin-bottom: 24px;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .page-heading h1 {
+        font-size: 22px;
+        font-weight: 800;
+        color: #0f172a;
+        letter-spacing: -0.02em;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .page-heading h1 i { color: #10b981; font-size: 20px; }
+    .page-heading p { font-size: 13px; color: #94a3b8; margin: 3px 0 0; }
+
+    /* ─── TOOLBAR ─── */
+    .toolbar {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 14px;
+        flex-wrap: wrap;
+    }
+
+    .search-box {
+        display: flex;
+        align-items: center;
+        background: white;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 9px;
+        overflow: hidden;
+        flex: 1;
+        min-width: 200px;
+        transition: border-color 0.15s;
+    }
+
+    .search-box:focus-within { border-color: #10b981; }
+    .search-box i { padding: 0 12px; font-size: 14px; color: #94a3b8; flex-shrink: 0; }
+
+    .search-box input {
+        border: none;
+        outline: none;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-size: 13.5px;
+        color: #0f172a;
+        padding: 9px 12px 9px 0;
+        flex: 1;
+        background: transparent;
+    }
+
+    .search-box input::placeholder { color: #94a3b8; }
+
+    /* ─── TABLE CARD ─── */
+    .table-card {
+        background: white;
+        border-radius: 16px;
+        border: 1px solid rgba(0,0,0,0.06);
+        box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+        overflow: hidden;
+    }
+
+    .table-card-header {
+        padding: 14px 22px;
+        border-bottom: 1px solid rgba(0,0,0,0.06);
+        background: #fafbfc;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .table-card-title {
+        font-size: 13.5px;
+        font-weight: 700;
+        color: #0f172a;
+        display: flex;
+        align-items: center;
+        gap: 7px;
+    }
+
+    .table-card-title i { color: #10b981; }
+
+    .row-count {
+        font-family: 'DM Mono', monospace;
+        font-size: 11px;
+        font-weight: 500;
+        background: #f0fdf4;
+        color: #16a34a;
+        padding: 3px 10px;
+        border-radius: 20px;
+    }
+
+    /* ─── TABLE ─── */
+    .dispose-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13.5px;
+    }
+
+    .dispose-table thead th {
+        font-size: 10.5px;
+        font-weight: 700;
+        letter-spacing: 0.07em;
+        text-transform: uppercase;
+        color: #94a3b8;
+        background: #f8fafc;
+        padding: 11px 16px;
+        border-bottom: 1px solid rgba(0,0,0,0.06);
+        white-space: nowrap;
+    }
+
+    .dispose-table tbody td {
+        padding: 13px 16px;
+        border-bottom: 1px solid rgba(0,0,0,0.05);
+        color: #334155;
+        vertical-align: middle;
+    }
+
+    .dispose-table tbody tr:last-child td { border-bottom: none; }
+    .dispose-table tbody tr:hover td { background: #f8fffe; }
+
+    /* Cells */
+    .id-chip {
+        font-family: 'DM Mono', monospace;
+        font-size: 12px;
+        background: #f1f5f9;
+        color: #475569;
+        padding: 3px 9px;
+        border-radius: 6px;
+    }
+
+    .med-name  { font-weight: 700; color: #0f172a; }
+    .user-cell { font-size: 13px; color: #64748b; }
+    .qty-val   { font-family: 'DM Mono', monospace; font-size: 13.5px; font-weight: 500; }
+    .date-val  { font-family: 'DM Mono', monospace; font-size: 12.5px; color: #64748b; }
+
+    /* Dispose button */
+    .btn-dispose {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 6px 13px;
+        border-radius: 7px;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-size: 12px;
+        font-weight: 700;
+        border: 1.5px solid #bbf7d0;
+        background: #f0fdf4;
+        color: #16a34a;
+        cursor: pointer;
+        transition: all 0.15s;
+        white-space: nowrap;
+    }
+
+    .btn-dispose:hover {
+        background: #10b981;
+        border-color: #10b981;
+        color: white;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(16,185,129,0.25);
+    }
+
+    /* ─── EMPTY STATE ─── */
+    .empty-state {
+        text-align: center;
+        padding: 64px 32px;
+    }
+
+    .empty-icon {
+        width: 72px; height: 72px;
+        background: #f0fdf4;
+        border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        margin: 0 auto 16px;
+        font-size: 30px;
+        color: #10b981;
+    }
+
+    .empty-state h5 { font-size: 17px; font-weight: 800; color: #0f172a; margin-bottom: 6px; }
+    .empty-state p  { font-size: 13.5px; color: #64748b; }
+
+    /* ─── DISPOSAL MODAL ─── */
+    .modal-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        z-index: 1050;
+        background: rgba(0,0,0,0.4);
+        backdrop-filter: blur(4px);
+        align-items: center;
+        justify-content: center;
+    }
+
+    .modal-overlay.active { display: flex; }
+
+    .modal-card {
+        background: white;
+        border-radius: 20px;
+        width: 90%;
+        max-width: 440px;
+        overflow: hidden;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.18);
+        animation: fadeUp 0.22s ease both;
+    }
+
+    .modal-band {
+        height: 4px;
+        background: linear-gradient(90deg, #10b981, #22c55e);
+    }
+
+    .modal-header {
+        padding: 20px 24px 16px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 1px solid rgba(0,0,0,0.06);
+    }
+
+    .modal-title-wrap {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .modal-icon {
+        width: 40px; height: 40px;
+        background: #f0fdf4;
+        border-radius: 10px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 18px;
+        color: #10b981;
+    }
+
+    .modal-title { font-size: 15px; font-weight: 800; color: #0f172a; }
+    .modal-subtitle { font-size: 12px; color: #94a3b8; margin-top: 1px; }
+
+    .modal-close {
+        width: 32px; height: 32px;
+        border-radius: 8px;
+        background: #f1f5f9;
+        border: none;
+        color: #64748b;
+        font-size: 14px;
+        cursor: pointer;
+        display: flex; align-items: center; justify-content: center;
+        transition: all 0.15s;
+    }
+
+    .modal-close:hover { background: #e2e8f0; color: #0f172a; }
+
+    .modal-body { padding: 20px 24px; }
+
+    /* Medicine info strip */
+    .med-info-strip {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 13px 15px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 18px;
+    }
+
+    .med-strip-icon {
+        width: 36px; height: 36px;
+        background: #f0fdf4;
+        border-radius: 8px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 16px;
+        color: #10b981;
+        flex-shrink: 0;
+    }
+
+    .med-strip-name { font-size: 14px; font-weight: 700; color: #0f172a; }
+    .med-strip-id   { font-family: 'DM Mono', monospace; font-size: 11.5px; color: #94a3b8; }
+
+    /* Method select */
+    .field-label {
+        font-size: 11.5px;
+        font-weight: 700;
+        color: #475569;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .field-label i { color: #10b981; }
+
+    /* Method options as radio cards */
+    .method-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        margin-bottom: 20px;
+    }
+
+    .method-option {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 12px;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 9px;
+        cursor: pointer;
+        transition: all 0.15s;
+        background: white;
+        font-size: 12.5px;
+        font-weight: 600;
+        color: #475569;
+    }
+
+    .method-option:has(input:checked) {
+        border-color: #10b981;
+        background: #f0fdf4;
+        color: #166534;
+    }
+
+    .method-option input[type="radio"] {
+        width: 14px; height: 14px;
+        accent-color: #10b981;
+        flex-shrink: 0;
+    }
+
+    .method-option i { font-size: 14px; flex-shrink: 0; }
+
+    /* Hidden real select for form submission */
+    #methodSelect { display: none; }
+
+    .btn-confirm {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        width: 100%;
+        padding: 12px;
+        border-radius: 10px;
+        background: #10b981;
+        color: white;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-size: 14px;
+        font-weight: 700;
+        border: none;
+        cursor: pointer;
+        transition: all 0.18s;
+        box-shadow: 0 4px 14px rgba(16,185,129,0.28);
+    }
+
+    .btn-confirm:hover {
+        background: #059669;
+        transform: translateY(-1px);
+        box-shadow: 0 6px 18px rgba(16,185,129,0.36);
+    }
+
+    @keyframes fadeUp {
+        from { opacity: 0; transform: translateY(12px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 600px) {
+        .dispose-table .hide-sm { display: none; }
+        .method-grid { grid-template-columns: 1fr; }
+    }
+</style>
+
+<!-- Page Heading -->
+<div class="page-heading">
+    <div>
+        <h1><i class="bi bi-recycle"></i> Final Disposal</h1>
+        <p>Process collected expired medicines for safe eco-disposal</p>
+    </div>
+</div>
+
+<!-- Toolbar -->
+<div class="toolbar">
+    <div class="search-box">
+        <i class="bi bi-search"></i>
+        <input type="text" id="disposeSearch" placeholder="Search by medicine name or user...">
+    </div>
+</div>
+
+<!-- Table Card -->
+<div class="table-card">
+    <div class="table-card-header">
+        <div class="table-card-title">
+            <i class="bi bi-recycle"></i> Collected — Awaiting Disposal
+        </div>
+        <span class="row-count" id="visibleCount">{{ requests|length }} pending</span>
+    </div>
+
+    {% if requests %}
+    <div style="overflow-x:auto;">
+        <table class="dispose-table" id="disposeTable">
+            <thead>
+                <tr>
+                    <th style="padding-left:22px;">ID</th>
+                    <th>Medicine</th>
+                    <th>Qty</th>
+                    <th class="hide-sm">User</th>
+                    <th class="hide-sm">Collected Date</th>
+                    <th style="padding-right:22px;">Action</th>
+                </tr>
+            </thead>
+            <tbody id="disposeBody">
+                {% for r in requests %}
+                <tr class="dispose-row"
+                    data-med="{{ r.medicine_name | lower }}"
+                    data-user="{{ r.user.name | lower }}">
+
+                    <td style="padding-left:22px;">
+                        <span class="id-chip">#{{ r.id }}</span>
+                    </td>
+
+                    <td>
+                        <div class="med-name">{{ r.medicine_name }}</div>
+                    </td>
+
+                    <td><span class="qty-val">{{ r.quantity }}</span></td>
+
+                    <td class="hide-sm">
+                        <span class="user-cell">{{ r.user.name }}</span>
+                    </td>
+
+                    <td class="hide-sm">
+                        <span class="date-val">{{ r.created_at.strftime("%d %b %Y") }}</span>
+                    </td>
+
+                    <td style="padding-right:22px;">
+                        <button class="btn-dispose"
+                                onclick="openDisposeModal('{{ r.id }}', '{{ r.medicine_name }}')">
+                            <i class="bi bi-recycle"></i> Dispose
+                        </button>
+                    </td>
+
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div id="noResults" style="display:none;" class="empty-state">
+        <div class="empty-icon"><i class="bi bi-search"></i></div>
+        <h5>No results found</h5>
+        <p>Try adjusting your search.</p>
+    </div>
+
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-icon"><i class="bi bi-check-circle"></i></div>
+        <h5>All clear!</h5>
+        <p>No collected medicines awaiting disposal.</p>
+    </div>
+    {% endif %}
+
+</div>
+
+<!-- ══════════════ DISPOSAL MODAL ══════════════ -->
+<div class="modal-overlay" id="disposeModal">
+    <div class="modal-card">
+
+        <div class="modal-band"></div>
+
+        <div class="modal-header">
+            <div class="modal-title-wrap">
+                <div class="modal-icon"><i class="bi bi-recycle"></i></div>
+                <div>
+                    <div class="modal-title">Confirm Disposal</div>
+                    <div class="modal-subtitle">Select method and confirm</div>
+                </div>
+            </div>
+            <button class="modal-close" onclick="closeDisposeModal()">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+
+        <div class="modal-body">
+            <form method="POST" action="/admin/dispose" id="disposeForm">
+                <input type="hidden" name="request_id" id="disposeId">
+
+                <!-- Medicine strip -->
+                <div class="med-info-strip">
+                    <div class="med-strip-icon"><i class="bi bi-capsule-pill"></i></div>
+                    <div>
+                        <div class="med-strip-name" id="disposeName">—</div>
+                        <div class="med-strip-id" id="disposeIdDisplay">Request #—</div>
+                    </div>
+                </div>
+
+                <!-- Method selection -->
+                <div class="field-label"><i class="bi bi-list-check"></i> Disposal Method</div>
+                <div class="method-grid">
+                    <label class="method-option">
+                        <input type="radio" name="method_ui" value="Incineration" checked onchange="syncMethod(this)">
+                        <i class="bi bi-fire" style="color:#ef4444;"></i>
+                        Incineration
+                    </label>
+                    <label class="method-option">
+                        <input type="radio" name="method_ui" value="Autoclaving" onchange="syncMethod(this)">
+                        <i class="bi bi-thermometer-high" style="color:#f97316;"></i>
+                        Autoclaving
+                    </label>
+                    <label class="method-option">
+                        <input type="radio" name="method_ui" value="Chemical Treatment" onchange="syncMethod(this)">
+                        <i class="bi bi-droplet-half" style="color:#0ea5e9;"></i>
+                        Chemical Treatment
+                    </label>
+                    <label class="method-option">
+                        <input type="radio" name="method_ui" value="Secure Landfill" onchange="syncMethod(this)">
+                        <i class="bi bi-layers" style="color:#64748b;"></i>
+                        Secure Landfill
+                    </label>
+                </div>
+
+                <!-- Hidden real select -->
+                <select name="method" id="methodSelect">
+                    <option value="Incineration">Incineration</option>
+                    <option value="Autoclaving">Autoclaving</option>
+                    <option value="Chemical Treatment">Chemical Treatment</option>
+                    <option value="Secure Landfill">Secure Landfill</option>
+                </select>
+
+                <button type="submit" class="btn-confirm">
+                    <i class="bi bi-check2-circle" style="font-size:15px;"></i>
+                    Confirm Disposal
+                </button>
+
+            </form>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    // ── Live search ──
+    const searchInput = document.getElementById('disposeSearch');
+    const rows        = document.querySelectorAll('.dispose-row');
+    const noResults   = document.getElementById('noResults');
+    const countEl     = document.getElementById('visibleCount');
+
+    searchInput.addEventListener('input', () => {
+        const q = searchInput.value.toLowerCase().trim();
+        let visible = 0;
+
+        rows.forEach(row => {
+            const match = !q || row.dataset.med.includes(q) || row.dataset.user.includes(q);
+            row.style.display = match ? '' : 'none';
+            if (match) visible++;
+        });
+
+        noResults.style.display = visible === 0 ? 'block' : 'none';
+        countEl.textContent = `${visible} pending`;
+    });
+
+    // ── Modal ──
+    const overlay = document.getElementById('disposeModal');
+
+    function openDisposeModal(id, name) {
+        document.getElementById('disposeId').value      = id;
+        document.getElementById('disposeName').textContent  = name;
+        document.getElementById('disposeIdDisplay').textContent = `Request #${id}`;
+        overlay.classList.add('active');
+    }
+
+    function closeDisposeModal() {
+        overlay.classList.remove('active');
+    }
+
+    overlay.addEventListener('click', e => {
+        if (e.target === overlay) closeDisposeModal();
+    });
+
+    // Sync radio → hidden select for form submission
+    function syncMethod(radio) {
+        document.getElementById('methodSelect').value = radio.value;
+    }
+
+    // Init hidden select to first option
+    syncMethod(document.querySelector('input[name="method_ui"]:checked'));
+</script>
+
+{% endblock %}

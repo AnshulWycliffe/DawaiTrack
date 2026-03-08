@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>JeevanMeds</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --nav-bg: #0f172a;
+            --nav-border: rgba(255,255,255,0.06);
+            --accent: #0ea5e9;
+            --accent-hover: #0284c7;
+            --accent-warm: #f59e0b;
+            --accent-green: #10b981;
+            --text-nav: #cbd5e1;
+            --text-muted-nav: #64748b;
+            --radius: 9px;
+            --content-bg: #f0f4f8;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: var(--content-bg);
+            margin: 0;
+        }
+
+        /* ─── NAVBAR ─── */
+        .site-nav {
+            background: var(--nav-bg);
+            border-bottom: 1px solid var(--nav-border);
+            position: sticky;
+            top: 0;
+            z-index: 200;
+            padding: 0;
+        }
+
+        .nav-inner {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 24px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        /* Brand */
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            flex-shrink: 0;
+        }
+
+        .brand-mark {
+            width: 34px; height: 34px;
+            background: linear-gradient(135deg, var(--accent), #0284c7);
+            border-radius: 9px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 16px;
+            color: white;
+            box-shadow: 0 0 16px rgba(14,165,233,0.3);
+        }
+
+        .brand-wordmark {
+            font-size: 17px;
+            font-weight: 800;
+            color: white;
+            letter-spacing: -0.03em;
+        }
+
+        .brand-wordmark span {
+            color: var(--accent);
+        }
+
+        /* Search */
+        .nav-search {
+            flex: 1;
+            max-width: 480px;
+            position: relative;
+        }
+
+        .nav-search-inner {
+            display: flex;
+            align-items: center;
+            background: rgba(255,255,255,0.07);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 10px;
+            overflow: visible;
+            transition: border-color 0.2s, background 0.2s;
+        }
+
+        .nav-search-inner:focus-within {
+            border-color: var(--accent);
+            background: rgba(255,255,255,0.09);
+            box-shadow: 0 0 0 3px rgba(14,165,233,0.15);
+        }
+
+        .nav-search-icon {
+            padding: 0 12px;
+            color: var(--text-muted-nav);
+            font-size: 15px;
+            flex-shrink: 0;
+        }
+
+        .nav-search input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: white;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 13.5px;
+            font-weight: 500;
+            padding: 10px 0;
+        }
+
+        .nav-search input::placeholder {
+            color: var(--text-muted-nav);
+        }
+
+        .nav-search-btn {
+            background: var(--accent-warm);
+            border: none;
+            color: #0f172a;
+            padding: 8px 14px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 0 9px 9px 0;
+            transition: background 0.15s;
+            flex-shrink: 0;
+            height: 100%;
+        }
+
+        .nav-search-btn:hover { background: #d97706; }
+
+        /* Suggestion box */
+        .suggestion-box {
+            position: absolute;
+            top: calc(100% + 6px);
+            left: 0; right: 0;
+            background: #1e293b;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 10px;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+            z-index: 999;
+            display: none;
+            overflow: hidden;
+            max-height: 260px;
+            overflow-y: auto;
+        }
+
+        .suggestion-box::-webkit-scrollbar { width: 4px; }
+        .suggestion-box::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
+
+        .suggestion-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 11px 16px;
+            cursor: pointer;
+            transition: background 0.15s;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+        }
+
+        .suggestion-item:last-child { border-bottom: none; }
+
+        .suggestion-item:hover { background: rgba(14,165,233,0.1); }
+
+        .suggestion-name {
+            font-size: 13.5px;
+            font-weight: 600;
+            color: white;
+        }
+
+        .suggestion-price {
+            font-family: 'DM Mono', monospace;
+            font-size: 12px;
+            color: var(--accent-warm);
+            font-weight: 500;
+        }
+
+        /* Nav actions */
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-left: auto;
+            flex-shrink: 0;
+        }
+
+        /* Greeting */
+        .nav-greeting {
+            font-size: 12.5px;
+            color: var(--text-muted-nav);
+            font-weight: 500;
+            white-space: nowrap;
+            padding: 0 4px;
+        }
+
+        .nav-greeting strong {
+            color: var(--text-nav);
+        }
+
+        /* Nav buttons */
+        .nav-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 13px;
+            border-radius: var(--radius);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
+            border: 1px solid transparent;
+            cursor: pointer;
+            transition: all 0.15s;
+            white-space: nowrap;
+        }
+
+        .nav-btn-ghost {
+            color: var(--text-nav);
+            border-color: rgba(255,255,255,0.1);
+            background: transparent;
+        }
+
+        .nav-btn-ghost:hover {
+            background: rgba(255,255,255,0.07);
+            color: white;
+            border-color: rgba(255,255,255,0.16);
+        }
+
+        .nav-btn-accent {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+
+        .nav-btn-accent:hover {
+            background: var(--accent-hover);
+            border-color: var(--accent-hover);
+            color: white;
+        }
+
+        .nav-btn-warm {
+            background: var(--accent-warm);
+            color: #0f172a;
+            border-color: var(--accent-warm);
+        }
+
+        .nav-btn-warm:hover {
+            background: #d97706;
+            border-color: #d97706;
+            color: #0f172a;
+        }
+
+        .nav-btn-green {
+            background: var(--accent-green);
+            color: white;
+            border-color: var(--accent-green);
+        }
+
+        .nav-btn-green:hover {
+            background: #059669;
+            border-color: #059669;
+            color: white;
+        }
+
+        /* Cart button with badge */
+        .cart-btn {
+            position: relative;
+        }
+
+        .cart-count {
+            position: absolute;
+            top: -6px; right: -6px;
+            min-width: 18px; height: 18px;
+            background: var(--accent-warm);
+            color: #0f172a;
+            font-size: 10px;
+            font-weight: 700;
+            border-radius: 20px;
+            display: flex; align-items: center; justify-content: center;
+            padding: 0 4px;
+            border: 2px solid var(--nav-bg);
+            font-family: 'DM Mono', monospace;
+        }
+
+        /* Divider */
+        .nav-divider {
+            width: 1px;
+            height: 22px;
+            background: rgba(255,255,255,0.1);
+            flex-shrink: 0;
+        }
+
+        /* Mobile toggle */
+        .nav-toggler {
+            display: none;
+            background: rgba(255,255,255,0.07);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: white;
+            width: 38px; height: 38px;
+            border-radius: 8px;
+            align-items: center;
+            justify-content: center;
+            font-size: 17px;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        /* Mobile Drawer */
+        .mobile-nav {
+            display: none;
+            background: #162032;
+            border-top: 1px solid var(--nav-border);
+            padding: 16px 20px 20px;
+        }
+
+        .mobile-search {
+            display: flex;
+            background: rgba(255,255,255,0.07);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 9px;
+            overflow: hidden;
+            margin-bottom: 14px;
+        }
+
+        .mobile-search input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: white;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 14px;
+            padding: 10px 14px;
+        }
+
+        .mobile-search input::placeholder { color: var(--text-muted-nav); }
+
+        .mobile-search button {
+            background: var(--accent-warm);
+            border: none;
+            color: #0f172a;
+            padding: 10px 14px;
+            font-size: 15px;
+            cursor: pointer;
+        }
+
+        .mobile-links {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .mobile-links .nav-btn {
+            justify-content: flex-start;
+            padding: 10px 14px;
+        }
+
+        /* ─── FLASH ─── */
+        .flash-zone {
+            max-width: 1280px;
+            margin: 20px auto 0;
+            padding: 0 24px;
+        }
+
+        .alert {
+            border: none;
+            border-radius: 9px;
+            font-size: 13.5px;
+            font-weight: 500;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.06);
+        }
+
+        .alert-success { background: #f0fdf4; color: #166534; border-left: 3px solid #22c55e; }
+        .alert-danger  { background: #fef2f2; color: #991b1b; border-left: 3px solid #ef4444; }
+        .alert-warning { background: #fffbeb; color: #92400e; border-left: 3px solid #f59e0b; }
+        .alert-info    { background: #eff6ff; color: #1e40af; border-left: 3px solid #3b82f6; }
+
+        .btn-close { margin-left: auto; opacity: 0.4; }
+
+        /* ─── MAIN CONTENT ─── */
+        .main-wrap {
+            max-width: 1280px;
+            margin: 28px auto 60px;
+            padding: 0 24px;
+        }
+
+        /* ─── RESPONSIVE ─── */
+        @media (max-width: 900px) {
+            .nav-search { display: none; }
+            .nav-greeting { display: none; }
+            .nav-actions { display: none; }
+            .nav-toggler { display: flex; }
+            .mobile-nav.open { display: block; }
+            .nav-inner { height: 58px; }
+        }
+
+        @media (max-width: 480px) {
+            .nav-inner { padding: 0 16px; }
+            .main-wrap { padding: 0 16px; }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ══════════════ NAVBAR ══════════════ -->
+    <nav class="site-nav">
+        <div class="nav-inner">
+
+            <!-- Brand -->
+            <a href="/" class="nav-brand">
+                <div class="brand-mark"><i class="bi bi-heart-pulse-fill"></i></div>
+                <div class="brand-wordmark">Jeevan<span>Meds</span></div>
+            </a>
+
+            <!-- Desktop Search -->
+            <div class="nav-search">
+                <form action="{{ url_for('main.search') }}" method="GET">
+                    <div class="nav-search-inner">
+                        <span class="nav-search-icon"><i class="bi bi-search"></i></span>
+                        <input type="search" name="q" id="searchInput"
+                               placeholder="Search medicines, brands..."
+                               autocomplete="off"
+                               value="{{ request.args.get('q', '') }}">
+                        <button type="submit" class="nav-search-btn">
+                            <i class="bi bi-arrow-right"></i>
+                        </button>
+                    </div>
+                    <div id="suggestionBox" class="suggestion-box"></div>
+                </form>
+            </div>
+
+            <!-- Desktop Actions -->
+            <div class="nav-actions">
+
+                {% if current_user.is_authenticated %}
+                <span class="nav-greeting">Hello, <strong>{{ current_user.name }}</strong></span>
+                <div class="nav-divider"></div>
+                {% endif %}
+
+                <!-- Cart -->
+                <a href="/cart" class="nav-btn nav-btn-ghost cart-btn">
+                    <i class="bi bi-cart3"></i> Cart
+                    <span class="cart-count">{{ session.get('cart') | length if session.get('cart') else 0 }}</span>
+                </a>
+
+                {% if current_user.is_authenticated %}
+                <a href="{{ url_for('order.history') }}" class="nav-btn nav-btn-ghost">
+                    <i class="bi bi-clock-history"></i> Orders
+                </a>
+                {% endif %}
+
+                {% if current_user.role == "USER" %}
+                <a href="{{ url_for('main.expired_history') }}" class="nav-btn nav-btn-ghost">
+                    <i class="bi bi-recycle"></i> Expired
+                </a>
+                {% endif %}
+
+                <a href="/order/checkout" class="nav-btn nav-btn-green">
+                    <i class="bi bi-credit-card"></i> Checkout
+                </a>
+
+                {% if current_user.role == "PHARMACY" %}
+                <div class="nav-divider"></div>
+                <a href="{{ url_for('pharmacy.inventory') }}" class="nav-btn nav-btn-ghost">
+                    <i class="bi bi-box-seam"></i> Pharmacy
+                </a>
+                {% elif current_user.role == "ADMIN" %}
+                
+                <a href="{{ url_for('admin.dashboard') }}" class="nav-btn nav-btn-accent">
+                    <i class="bi bi-shield-check"></i> Admin
+                </a>
+                {% endif %}
+
+                <div class="nav-divider"></div>
+
+                {% if current_user.is_authenticated %}
+                <a href="{{ url_for('auth.logout') }}" class="nav-btn nav-btn-ghost">
+                    <i class="bi bi-box-arrow-right"></i> Logout
+                </a>
+                {% else %}
+                <a href="{{ url_for('auth.login') }}" class="nav-btn nav-btn-ghost">
+                    <i class="bi bi-person"></i> Login
+                </a>
+                <a href="{{ url_for('auth.register') }}" class="nav-btn nav-btn-warm">
+                    <i class="bi bi-person-plus"></i> Register
+                </a>
+                {% endif %}
+
+            </div>
+
+            <!-- Mobile: Cart + Toggler -->
+            <div style="display:flex; align-items:center; gap:8px; margin-left:auto;" class="d-lg-flex d-none d-sm-flex">
+                <!-- shown via css toggle above -->
+            </div>
+
+            <a href="/cart" class="nav-btn nav-btn-ghost cart-btn" id="mobileCartBtn" style="display:none; position:relative;">
+                <i class="bi bi-cart3"></i>
+                <span class="cart-count">{{ session.get('cart') | length if session.get('cart') else 0 }}</span>
+            </a>
+
+            <button class="nav-toggler" id="navToggler" aria-label="Toggle menu">
+                <i class="bi bi-list" id="togglerIcon"></i>
+            </button>
+
+        </div>
+
+        <!-- Mobile Drawer -->
+        <div class="mobile-nav" id="mobileNav">
+
+            <!-- Mobile Search -->
+            <form class="mobile-search" action="{{ url_for('main.search') }}" method="GET">
+                <input type="search" name="q" placeholder="Search medicines..."
+                       value="{{ request.args.get('q', '') }}" autocomplete="off">
+                <button type="submit"><i class="bi bi-search"></i></button>
+            </form>
+
+            <div class="mobile-links">
+                {% if current_user.is_authenticated %}
+                <div style="font-size:13px; color:#64748b; font-weight:600; padding:4px 2px; margin-bottom:2px;">
+                    Hello, {{ current_user.name }}
+                </div>
+                {% endif %}
+
+                <a href="/cart" class="nav-btn nav-btn-ghost cart-btn">
+                    <i class="bi bi-cart3"></i> Cart
+                    <span class="cart-count" style="position:static; transform:none; border:none; margin-left:4px;">
+                        {{ session.get('cart') | length if session.get('cart') else 0 }}
+                    </span>
+                </a>
+
+                <a href="/order/checkout" class="nav-btn nav-btn-green">
+                    <i class="bi bi-credit-card"></i> Checkout
+                </a>
+
+                {% if current_user.is_authenticated %}
+                <a href="{{ url_for('order.history') }}" class="nav-btn nav-btn-ghost">
+                    <i class="bi bi-clock-history"></i> My Orders
+                </a>
+                {% endif %}
+
+                {% if current_user.role == "USER" %}
+                <a href="{{ url_for('main.expired_history') }}" class="nav-btn nav-btn-ghost">
+                    <i class="bi bi-recycle"></i> Expired Requests
+                </a>
+                {% endif %}
+                {% if current_user.role == "PHARMACY" %}
+                <a href="{{ url_for('pharmacy.inventory') }}" class="nav-btn nav-btn-ghost">
+                    <i class="bi bi-box-seam"></i> Pharmacy Panel
+                </a>
+                {% endif %}
+                {% if current_user.role == "ADMIN" %}
+                <a href="{{ url_for('admin.dashboard') }}" class="nav-btn nav-btn-accent">
+                    <i class="bi bi-shield-check"></i> Admin Panel
+                </a>
+                {% endif %}
+
+                <div style="height:1px; background:rgba(255,255,255,0.07); margin:4px 0;"></div>
+
+                {% if current_user.is_authenticated %}
+                <a href="{{ url_for('auth.logout') }}" class="nav-btn nav-btn-ghost" style="color:#f87171; border-color:rgba(248,113,113,0.2);">
+                    <i class="bi bi-box-arrow-right"></i> Logout
+                </a>
+                {% else %}
+                <a href="{{ url_for('auth.login') }}" class="nav-btn nav-btn-ghost">
+                    <i class="bi bi-person"></i> Login
+                </a>
+                <a href="{{ url_for('auth.register') }}" class="nav-btn nav-btn-warm">
+                    <i class="bi bi-person-plus"></i> Register
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <!-- ══════════════ FLASH MESSAGES ══════════════ -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="flash-zone">
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+            {% if category == 'success' %}<i class="bi bi-check-circle-fill"></i>
+            {% elif category == 'danger' %}<i class="bi bi-exclamation-circle-fill"></i>
+            {% elif category == 'warning' %}<i class="bi bi-exclamation-triangle-fill"></i>
+            {% else %}<i class="bi bi-info-circle-fill"></i>{% endif %}
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
+
+    <!-- ══════════════ MAIN CONTENT ══════════════ -->
+    <div class="main-wrap">
+        {% block content %}{% endblock %}
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // ── Search Suggestions ──
+        const searchInput = document.getElementById("searchInput");
+        const suggestionBox = document.getElementById("suggestionBox");
+        let debounceTimer;
+
+        if (searchInput) {
+            searchInput.addEventListener("input", function () {
+                const query = this.value;
+                clearTimeout(debounceTimer);
+                debounceTimer = setTimeout(() => {
+                    if (query.length < 2) { suggestionBox.style.display = "none"; return; }
+                    fetch(`/api/search-suggestions?q=${encodeURIComponent(query)}`)
+                        .then(r => r.json())
+                        .then(data => {
+                            suggestionBox.innerHTML = "";
+                            if (data.length === 0) { suggestionBox.style.display = "none"; return; }
+                            data.forEach(item => {
+                                const div = document.createElement("div");
+                                div.className = "suggestion-item";
+                                div.innerHTML = `<span class="suggestion-name">${item.name}</span><span class="suggestion-price">₹${item.price}</span>`;
+                                div.onclick = () => { window.location.href = `/search?q=${encodeURIComponent(item.name)}`; };
+                                suggestionBox.appendChild(div);
+                            });
+                            suggestionBox.style.display = "block";
+                        });
+                }, 300);
+            });
+
+            document.addEventListener("click", function (e) {
+                if (!searchInput.contains(e.target) && !suggestionBox.contains(e.target)) {
+                    suggestionBox.style.display = "none";
+                }
+            });
+        }
+
+        // ── Mobile Nav Toggle ──
+        const toggler = document.getElementById("navToggler");
+        const mobileNav = document.getElementById("mobileNav");
+        const togglerIcon = document.getElementById("togglerIcon");
+        const mobileCartBtn = document.getElementById("mobileCartBtn");
+
+        // Show mobile cart btn on small screens
+        function checkMobile() {
+            if (window.innerWidth <= 900) {
+                mobileCartBtn.style.display = "inline-flex";
+            } else {
+                mobileCartBtn.style.display = "none";
+                mobileNav.classList.remove("open");
+                togglerIcon.className = "bi bi-list";
+            }
+        }
+        checkMobile();
+        window.addEventListener("resize", checkMobile);
+
+        toggler.addEventListener("click", () => {
+            const isOpen = mobileNav.classList.toggle("open");
+            togglerIcon.className = isOpen ? "bi bi-x-lg" : "bi bi-list";
+        });
+    </script>
+
+</body>
+</html>

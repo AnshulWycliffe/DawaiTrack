@@ -1,0 +1,88 @@
+from app import create_app
+from app.models.medicine import Medicine, Pricing
+from app.models.user import User
+from app.config.roles import Roles
+
+app = create_app()
+app.app_context().push()
+
+admin = User.objects(role=Roles.ADMIN).first()
+
+medicines = [
+
+    Medicine(
+        name="Paracetamol 500mg",
+        slug="paracetamol-500mg",
+        category="Fever & Pain",
+        manufacturer="Cipla",
+        description="Effective relief from fever and mild to moderate pain.",
+        pricing=Pricing(mrp=30, selling_price=24),
+        total_stock=150,
+        image_url="https://images-its.chemistdirect.co.uk/Paracetamol-Capsule-500mg.jpg?o=uS5NKZzLD5tKBtbySLjgQ3A085Qj&V=yyaL&w=600&h=600",
+        requires_prescription=False,
+        is_active=True,
+        created_by=admin
+    ),
+
+    Medicine(
+        name="Azithromycin 250mg",
+        slug="azithromycin-250mg",
+        category="Antibiotics",
+        manufacturer="Sun Pharma",
+        description="Used for bacterial infections such as throat and respiratory infections.",
+        pricing=Pricing(mrp=120, selling_price=102),
+        total_stock=80,
+        image_url="https://www.mountainside-medical.com/cdn/shop/files/Azithromycin-250-mg-Tablets-by-Aurobindo-NDC-65862-0641-63_1800x1800.jpg?v=1731610143",
+        requires_prescription=True,
+        is_active=True,
+        created_by=admin
+    ),
+
+    Medicine(
+        name="Vitamin D3 Capsules",
+        slug="vitamin-d3-capsules",
+        category="Immunity Boosters",
+        manufacturer="Himalaya",
+        description="Supports bone health and immunity.",
+        pricing=Pricing(mrp=200, selling_price=180),
+        total_stock=200,
+        image_url="https://tse1.mm.bing.net/th/id/OIP.sDrvw3NzDjwilQB7RQLxEAHaHa?rs=1&pid=ImgDetMain&o=7&rm=3",
+        requires_prescription=False,
+        is_active=True,
+        created_by=admin
+    ),
+
+    Medicine(
+        name="Metformin 500mg",
+        slug="metformin-500mg",
+        category="Diabetes Care",
+        manufacturer="Dr. Reddy's",
+        description="Helps control blood sugar levels in type 2 diabetes.",
+        pricing=Pricing(mrp=90, selling_price=75),
+        total_stock=100,
+        image_url="https://th.bing.com/th/id/OIP.VCSfY73IUwumP0Yi1pDdYwHaHa?w=178&h=180&c=7&r=0&o=7&dpr=1.2&pid=1.7&rm=3",
+        requires_prescription=True,
+        is_active=True,
+        created_by=admin
+    ),
+
+    Medicine(
+        name="Atorvastatin 10mg",
+        slug="atorvastatin-10mg",
+        category="Heart Care",
+        manufacturer="Lupin",
+        description="Used to lower cholesterol and reduce heart risk.",
+        pricing=Pricing(mrp=150, selling_price=130),
+        total_stock=60,
+        image_url="https://tse3.mm.bing.net/th/id/OIP.zBSrf_7FP9iQkvMmbeRHSAHaHa?rs=1&pid=ImgDetMain&o=7&rm=3",
+        requires_prescription=True,
+        is_active=True,
+        created_by=admin
+    )
+
+]
+
+for med in medicines:
+    med.save()
+
+print("Sample medicines inserted successfully!")

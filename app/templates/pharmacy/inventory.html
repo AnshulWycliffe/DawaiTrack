@@ -1,0 +1,656 @@
+{% extends "pharmacy/pharmacy_base.html" %}
+
+{% block pharmacy_content %}
+
+<style>
+    /* ─── PAGE HEADING ─── */
+    .page-heading {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        margin-bottom: 24px;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .page-heading h1 {
+        font-size: 22px;
+        font-weight: 800;
+        color: #0f172a;
+        letter-spacing: -0.02em;
+        margin: 0;
+    }
+
+    .page-heading p { font-size: 13px; color: #94a3b8; margin: 3px 0 0; }
+
+    .btn-primary-action {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 10px 18px;
+        border-radius: 9px;
+        background: #0ea5e9;
+        color: white;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-size: 13.5px;
+        font-weight: 700;
+        text-decoration: none;
+        border: none;
+        transition: all 0.18s;
+        box-shadow: 0 4px 14px rgba(14,165,233,0.28);
+        white-space: nowrap;
+    }
+
+    .btn-primary-action:hover {
+        background: #0284c7;
+        color: white;
+        transform: translateY(-1px);
+        box-shadow: 0 6px 18px rgba(14,165,233,0.36);
+    }
+
+    /* ─── STATS STRIP ─── */
+    .stats-strip {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+
+    .stat-chip {
+        background: white;
+        border-radius: 12px;
+        border: 1px solid rgba(0,0,0,0.06);
+        box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+        padding: 14px 18px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .stat-chip-icon {
+        width: 38px; height: 38px;
+        border-radius: 9px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 17px;
+        flex-shrink: 0;
+    }
+
+    .stat-chip-val {
+        font-family: 'DM Mono', monospace;
+        font-size: 20px;
+        font-weight: 500;
+        color: #0f172a;
+        line-height: 1;
+        margin-bottom: 2px;
+    }
+
+    .stat-chip-label {
+        font-size: 11.5px;
+        color: #94a3b8;
+        font-weight: 500;
+    }
+
+    /* ─── TOOLBAR ─── */
+    .toolbar {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 14px;
+        flex-wrap: wrap;
+    }
+
+    .search-box {
+        display: flex;
+        align-items: center;
+        background: white;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 9px;
+        overflow: hidden;
+        flex: 1;
+        min-width: 200px;
+        transition: border-color 0.15s;
+    }
+
+    .search-box:focus-within { border-color: #0ea5e9; }
+
+    .search-box i { padding: 0 12px; font-size: 14px; color: #94a3b8; flex-shrink: 0; }
+
+    .search-box input {
+        border: none;
+        outline: none;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-size: 13.5px;
+        color: #0f172a;
+        padding: 9px 12px 9px 0;
+        flex: 1;
+        background: transparent;
+    }
+
+    .search-box input::placeholder { color: #94a3b8; }
+
+    .filter-select {
+        appearance: none;
+        -webkit-appearance: none;
+        background: white url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2.5'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 10px center;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 9px;
+        padding: 9px 30px 9px 13px;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-size: 13px;
+        font-weight: 500;
+        color: #334155;
+        cursor: pointer;
+        outline: none;
+        transition: border-color 0.15s;
+    }
+
+    .filter-select:focus { border-color: #0ea5e9; }
+
+    /* ─── TABLE CARD ─── */
+    .table-card {
+        background: white;
+        border-radius: 16px;
+        border: 1px solid rgba(0,0,0,0.06);
+        box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+        overflow: hidden;
+    }
+
+    .table-card-header {
+        padding: 14px 22px;
+        border-bottom: 1px solid rgba(0,0,0,0.06);
+        background: #fafbfc;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .table-card-title {
+        font-size: 13.5px;
+        font-weight: 700;
+        color: #0f172a;
+        display: flex;
+        align-items: center;
+        gap: 7px;
+    }
+
+    .table-card-title i { color: #0ea5e9; }
+
+    .batch-count {
+        font-family: 'DM Mono', monospace;
+        font-size: 11px;
+        font-weight: 500;
+        background: #f1f5f9;
+        color: #64748b;
+        padding: 3px 10px;
+        border-radius: 20px;
+    }
+
+    /* ─── TABLE ─── */
+    .inv-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13.5px;
+    }
+
+    .inv-table thead th {
+        font-size: 10.5px;
+        font-weight: 700;
+        letter-spacing: 0.07em;
+        text-transform: uppercase;
+        color: #94a3b8;
+        background: #f8fafc;
+        padding: 11px 16px;
+        border-bottom: 1px solid rgba(0,0,0,0.06);
+        white-space: nowrap;
+    }
+
+    .inv-table tbody td {
+        padding: 14px 16px;
+        border-bottom: 1px solid rgba(0,0,0,0.05);
+        color: #334155;
+        vertical-align: middle;
+    }
+
+    .inv-table tbody tr:last-child td { border-bottom: none; }
+    .inv-table tbody tr:hover td { background: #fafbfc; }
+
+    /* Row highlight for critical/expired */
+    .inv-table tbody tr.row-expired td { background: #fff8f8; }
+    .inv-table tbody tr.row-critical td { background: #fffdf0; }
+    .inv-table tbody tr.row-expired:hover td { background: #fef2f2; }
+    .inv-table tbody tr.row-critical:hover td { background: #fffbeb; }
+    .pill-warning  { background: #fff7ed; color: #c2410c; }
+    .pill-warning::before  { background: #f97316; }
+
+    .inv-table tbody tr.row-warning td { background: #fff9f5; }
+    .inv-table tbody tr.row-warning:hover td { background: #fff7ed; }
+    /* Medicine cell */
+    .med-cell { font-weight: 700; color: #0f172a; }
+    .med-cell small { font-weight: 400; color: #94a3b8; font-size: 11.5px; display: block; margin-top: 1px; }
+
+    /* Batch number */
+    .batch-num {
+        font-family: 'DM Mono', monospace;
+        font-size: 12.5px;
+        color: #475569;
+        background: #f1f5f9;
+        padding: 3px 8px;
+        border-radius: 5px;
+    }
+
+    /* Date cell */
+    .date-cell { font-family: 'DM Mono', monospace; font-size: 13px; color: #64748b; }
+
+    /* Quantity */
+    .qty-cell {
+        font-family: 'DM Mono', monospace;
+        font-size: 14px;
+        font-weight: 500;
+        color: #0f172a;
+    }
+
+    .qty-low { color: #dc2626; }
+
+    /* Supplier */
+    .supplier-cell { font-size: 13px; color: #64748b; }
+
+    /* Status pills */
+    .status-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 11.5px;
+        font-weight: 700;
+        padding: 4px 11px;
+        border-radius: 20px;
+        white-space: nowrap;
+    }
+
+    .status-pill::before {
+        content: '';
+        width: 6px; height: 6px;
+        border-radius: 50%;
+        flex-shrink: 0;
+    }
+
+    .pill-safe     { background: #f0fdf4; color: #166534; }
+    .pill-safe::before     { background: #22c55e; }
+    .pill-critical { background: #fffbeb; color: #92400e; }
+    .pill-critical::before { background: #f59e0b; box-shadow: 0 0 4px rgba(245,158,11,0.5); }
+    .pill-expired  { background: #fef2f2; color: #991b1b; }
+    .pill-expired::before  { background: #ef4444; }
+
+    /* ─── ACTION BUTTONS ─── */
+    .action-cell {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex-wrap: nowrap;
+    }
+
+    .act-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 6px 11px;
+        border-radius: 7px;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-size: 12px;
+        font-weight: 600;
+        text-decoration: none;
+        border: 1.5px solid transparent;
+        cursor: pointer;
+        transition: all 0.15s;
+        white-space: nowrap;
+        background: none;
+    }
+
+    .act-btn-batch {
+        border-color: #bbf7d0;
+        background: #f0fdf4;
+        color: #16a34a;
+    }
+
+    .act-btn-batch:hover { background: #22c55e; border-color: #22c55e; color: white; }
+
+    .act-btn-view {
+        border-color: #e2e8f0;
+        background: white;
+        color: #475569;
+    }
+
+    .act-btn-view:hover { border-color: #0ea5e9; color: #0ea5e9; background: #f0f9ff; }
+
+    .act-btn-delete {
+        border-color: #fecaca;
+        background: #fef2f2;
+        color: #dc2626;
+    }
+
+    .act-btn-delete:hover { background: #ef4444; border-color: #ef4444; color: white; }
+
+    /* ─── EMPTY STATE ─── */
+    .empty-state {
+        text-align: center;
+        padding: 64px 32px;
+    }
+
+    .empty-icon {
+        width: 72px; height: 72px;
+        background: #f1f5f9;
+        border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        margin: 0 auto 16px;
+        font-size: 30px;
+        color: #94a3b8;
+    }
+
+    .empty-state h5 { font-size: 17px; font-weight: 800; color: #0f172a; margin-bottom: 6px; }
+    .empty-state p  { font-size: 13.5px; color: #64748b; margin-bottom: 20px; }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 900px) {
+        .stats-strip { grid-template-columns: repeat(2, 1fr); }
+        .inv-table { font-size: 12.5px; }
+        .inv-table thead th, .inv-table tbody td { padding: 10px 12px; }
+        .hide-md { display: none; }
+    }
+
+    @media (max-width: 520px) {
+        .stats-strip { grid-template-columns: repeat(2, 1fr); }
+    }
+</style>
+
+<!-- Page Heading -->
+<div class="page-heading">
+    <div>
+        <h1>Inventory Management</h1>
+        <p>Track stock batches, expiry dates, and reorder levels</p>
+    </div>
+    <a href="{{ url_for('pharmacy.medicines') }}" class="btn-primary-action">
+        <i class="bi bi-plus-lg"></i> Add Medicine
+    </a>
+</div>
+
+<!-- Stats Strip -->
+<div class="stats-strip">
+    <div class="stat-chip">
+        <div class="stat-chip-icon" style="background:#eff6ff; color:#2563eb;">
+            <i class="bi bi-boxes"></i>
+        </div>
+        <div>
+            <div class="stat-chip-val">{{ batches|length }}</div>
+            <div class="stat-chip-label">Total Batches</div>
+        </div>
+    </div>
+    <div class="stat-chip">
+        <div class="stat-chip-icon" style="background:#f0fdf4; color:#16a34a;">
+            <i class="bi bi-check-circle"></i>
+        </div>
+        <div>
+            <div class="stat-chip-val">{{ batches|selectattr('expiry_status','eq','safe')|list|length }}</div>
+            <div class="stat-chip-label">Safe Batches</div>
+        </div>
+    </div>
+    <div class="stat-chip">
+        <div class="stat-chip-icon" style="background:#fffbeb; color:#b45309;">
+            <i class="bi bi-exclamation-triangle"></i>
+        </div>
+        <div>
+            <div class="stat-chip-val">{{ batches|selectattr('expiry_status','eq','critical')|list|length }}</div>
+            <div class="stat-chip-label">Expiring Soon</div>
+        </div>
+    </div>
+    <div class="stat-chip">
+        <div class="stat-chip-icon" style="background:#fef2f2; color:#dc2626;">
+            <i class="bi bi-x-circle"></i>
+        </div>
+        <div>
+            <div class="stat-chip-val">{{ batches|selectattr('expiry_status','eq','expired')|list|length }}</div>
+            <div class="stat-chip-label">Expired</div>
+        </div>
+    </div>
+    <div class="stat-chip">
+        <div class="stat-chip-icon" style="background:#fff7ed; color:#c2410c;">
+            <i class="bi bi-clock-history"></i>
+        </div>
+        <div>
+            <div class="stat-chip-val">{{ batches|selectattr('expiry_status','eq','warning')|list|length }}</div>
+            <div class="stat-chip-label">Expiring (6mo)</div>
+        </div>
+    </div>
+</div>
+
+<!-- Toolbar -->
+<div class="toolbar">
+    <div class="search-box">
+        <i class="bi bi-search"></i>
+        <input type="text" id="batchSearch" placeholder="Search medicine, batch number or supplier...">
+    </div>
+    <select class="filter-select" id="statusFilter">
+        <option value="">All Status</option>
+        <option value="safe">Safe</option>
+        <option value="warning">Expiring (6mo)</option>
+        <option value="critical">Expiring Soon</option>
+        <option value="expired">Expired</option>
+    </select>
+</div>
+
+<!-- Table Card -->
+<div class="table-card">
+    <div class="table-card-header">
+        <div class="table-card-title">
+            <i class="bi bi-box-seam"></i> Stock Batches
+        </div>
+        <span class="batch-count" id="visibleCount">{{ batches|length }} batches</span>
+    </div>
+
+    {% if batches %}
+    <div style="overflow-x:auto;">
+        <table class="inv-table" id="invTable">
+            <thead>
+                <tr>
+                    <th style="padding-left:22px;">Medicine</th>
+                    <th>Batch No.</th>
+                    <th>Expiry Date</th>
+                    <th>Quantity</th>
+                    <th class="hide-md">Supplier</th>
+                    <th>Status</th>
+                    <th style="padding-right:22px;">Actions</th>
+                </tr>
+            </thead>
+            <tbody id="batchBody">
+                {% for batch in batches %}
+                <tr class="batch-row row-{{ batch.expiry_status }}"
+                    data-name="{{ batch.medicine.name | lower }}"
+                    data-batch="{{ batch.batch_number | lower }}"
+                    data-supplier="{{ (batch.supplier or '') | lower }}"
+                    data-status="{{ batch.expiry_status }}">
+
+                    <td style="padding-left:22px;">
+                        <div class="med-cell">
+                            {{ batch.medicine.name }}
+                            <small>{{ batch.medicine.manufacturer }}</small>
+                        </div>
+                    </td>
+
+                    <td><span class="batch-num">{{ batch.batch_number }}</span></td>
+
+                    <td>
+                        <span class="date-cell"
+                            style="{% if batch.expiry_status == 'expired' %}color:#dc2626;
+                                {% elif batch.expiry_status == 'critical' %}color:#b45309;
+                                {% elif batch.expiry_status == 'warning' %}color:#c2410c;
+                                {% endif %}">
+                            {{ batch.expiry_date.strftime("%d %b %Y") }}
+                        </span>
+                    </td>
+
+                    <td>
+                        <span class="qty-cell {% if batch.quantity < 10 %}qty-low{% endif %}">
+                            {{ batch.quantity }}
+                        </span>
+                    </td>
+
+                    <td class="supplier-cell hide-md">
+                        {{ batch.supplier or '—' }}
+                    </td>
+
+                    <td>
+                        {% if batch.expiry_status == 'expired' %}
+                        <span class="status-pill pill-expired">Expired</span>
+                        {% elif batch.expiry_status == 'critical' %}
+                        <span class="status-pill pill-critical">Expiring Soon</span>
+                        {% elif batch.expiry_status == 'warning' %}
+                        <span class="status-pill pill-warning">Expiring (6mo)</span>
+                        {% else %}
+                        <span class="status-pill pill-safe">Safe</span>
+                        {% endif %}
+                    </td>
+
+                    <td style="padding-right:22px;">
+                        <div class="action-cell">
+                            <a href="{{ url_for('pharmacy.add_batch', medicine_id=batch.medicine.id) }}"
+                               class="act-btn act-btn-batch">
+                                <i class="bi bi-plus-circle"></i> Batch
+                            </a>
+                            <a href="{{ url_for('main.product_detail', slug=batch.medicine.slug) }}"
+                               class="act-btn act-btn-view" target="_blank">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                            <form action="{{ url_for('pharmacy.delete_batch', batch_id=batch.id) }}"
+                                  method="POST" style="display:inline;"
+                                  onsubmit="return confirmDelete(event, '{{ batch.batch_number }}')">
+                                <button type="submit" class="act-btn act-btn-delete">
+                                    <i class="bi bi-trash3"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- No results -->
+    <div id="noResults" style="display:none;" class="empty-state">
+        <div class="empty-icon"><i class="bi bi-search"></i></div>
+        <h5>No batches found</h5>
+        <p>Try adjusting your search or filter.</p>
+    </div>
+
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-icon"><i class="bi bi-box-seam"></i></div>
+        <h5>No inventory batches yet</h5>
+        <p>Add medicines and create stock batches to start tracking inventory.</p>
+        <a href="{{ url_for('pharmacy.medicines') }}" class="btn-primary-action" style="display:inline-flex;">
+            <i class="bi bi-plus-lg"></i> Go to Medicines
+        </a>
+    </div>
+    {% endif %}
+
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div id="deleteModal" style="
+    display:none; position:fixed; inset:0; z-index:1000;
+    background:rgba(0,0,0,0.4); backdrop-filter:blur(4px);
+    align-items:center; justify-content:center;">
+    <div style="
+        background:white; border-radius:16px; padding:28px 28px 24px;
+        max-width:380px; width:90%; box-shadow:0 20px 60px rgba(0,0,0,0.2);
+        animation: fadeUp 0.2s ease both;">
+        <div style="width:48px;height:48px;background:#fef2f2;border-radius:12px;
+             display:flex;align-items:center;justify-content:center;
+             font-size:22px;color:#ef4444;margin-bottom:14px;">
+            <i class="bi bi-trash3-fill"></i>
+        </div>
+        <div style="font-size:17px;font-weight:800;color:#0f172a;margin-bottom:6px;">Delete Batch?</div>
+        <div style="font-size:13.5px;color:#64748b;margin-bottom:22px;" id="deleteModalText">
+            This action cannot be undone.
+        </div>
+        <div style="display:flex;gap:10px;justify-content:flex-end;">
+            <button onclick="cancelDelete()"
+                style="padding:9px 18px;border-radius:8px;border:1.5px solid #e2e8f0;
+                background:white;color:#475569;font-family:'Plus Jakarta Sans',sans-serif;
+                font-size:13px;font-weight:600;cursor:pointer;">
+                Cancel
+            </button>
+            <button id="confirmDeleteBtn"
+                style="padding:9px 18px;border-radius:8px;border:none;
+                background:#ef4444;color:white;font-family:'Plus Jakarta Sans',sans-serif;
+                font-size:13px;font-weight:700;cursor:pointer;
+                box-shadow:0 4px 12px rgba(239,68,68,0.3);">
+                Delete Batch
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ── Live search & filter ──
+    const searchInput  = document.getElementById('batchSearch');
+    const statusFilter = document.getElementById('statusFilter');
+    const rows         = document.querySelectorAll('.batch-row');
+    const noResults    = document.getElementById('noResults');
+    const countEl      = document.getElementById('visibleCount');
+
+    function filterTable() {
+        const q      = searchInput.value.toLowerCase().trim();
+        const status = statusFilter.value;
+        let visible  = 0;
+
+        rows.forEach(row => {
+            const name     = row.dataset.name;
+            const batch    = row.dataset.batch;
+            const supplier = row.dataset.supplier;
+            const rstatus  = row.dataset.status;
+
+            const matchQ = !q || name.includes(q) || batch.includes(q) || supplier.includes(q);
+            const matchS = !status || rstatus === status;
+
+            const show = matchQ && matchS;
+            row.style.display = show ? '' : 'none';
+            if (show) visible++;
+        });
+
+        noResults.style.display = visible === 0 ? 'block' : 'none';
+        countEl.textContent = `${visible} batch${visible !== 1 ? 'es' : ''}`;
+    }
+
+    searchInput.addEventListener('input', filterTable);
+    statusFilter.addEventListener('change', filterTable);
+
+    // ── Delete confirmation modal ──
+    let pendingForm = null;
+
+    function confirmDelete(e, batchNum) {
+        e.preventDefault();
+        pendingForm = e.target;
+        document.getElementById('deleteModalText').textContent =
+            `Batch "${batchNum}" will be permanently removed from inventory.`;
+        document.getElementById('deleteModal').style.display = 'flex';
+        return false;
+    }
+
+    document.getElementById('confirmDeleteBtn').addEventListener('click', () => {
+        if (pendingForm) pendingForm.submit();
+    });
+
+    function cancelDelete() {
+        document.getElementById('deleteModal').style.display = 'none';
+        pendingForm = null;
+    }
+
+    // Close on backdrop click
+    document.getElementById('deleteModal').addEventListener('click', function(e) {
+        if (e.target === this) cancelDelete();
+    });
+</script>
+
+{% endblock %}

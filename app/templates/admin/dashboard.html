@@ -1,0 +1,376 @@
+{% extends "admin/admin_base.html" %}
+
+{% block page_title %}Dashboard{% endblock %}
+
+{% block admin_content %}
+
+<style>
+    /* ─── PAGE HEADING ─── */
+    .page-heading {
+        margin-bottom: 24px;
+    }
+
+    .page-heading h1 {
+        font-size: 22px;
+        font-weight: 800;
+        color: #0f172a;
+        letter-spacing: -0.02em;
+        margin: 0;
+    }
+
+    .page-heading p { font-size: 13px; color: #94a3b8; margin: 3px 0 0; }
+
+    /* ─── STAT CARDS ─── */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 14px;
+        margin-bottom: 24px;
+    }
+
+    .stat-card {
+        background: white;
+        border-radius: 16px;
+        border: 1px solid rgba(0,0,0,0.06);
+        box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+        padding: 20px 20px 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        transition: transform 0.18s, box-shadow 0.18s;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+    }
+
+    /* Subtle corner glow */
+    .stat-card::after {
+        content: '';
+        position: absolute;
+        top: -20px; right: -20px;
+        width: 80px; height: 80px;
+        border-radius: 50%;
+        opacity: 0.08;
+    }
+
+    .stat-card-blue::after  { background: #0ea5e9; }
+    .stat-card-green::after { background: #10b981; }
+    .stat-card-amber::after { background: #f59e0b; }
+    .stat-card-red::after   { background: #ef4444; }
+
+    .stat-card-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .stat-icon {
+        width: 42px; height: 42px;
+        border-radius: 11px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 19px;
+        flex-shrink: 0;
+    }
+
+    .stat-trend {
+        font-size: 11.5px;
+        font-weight: 700;
+        padding: 3px 9px;
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        gap: 3px;
+    }
+
+    .stat-trend.up   { background: #f0fdf4; color: #16a34a; }
+    .stat-trend.warn { background: #fef2f2; color: #dc2626; }
+    .stat-trend.neutral { background: #f1f5f9; color: #64748b; }
+
+    .stat-val {
+        font-family: 'DM Mono', monospace;
+        font-size: 32px;
+        font-weight: 500;
+        color: #0f172a;
+        line-height: 1;
+        margin-bottom: 3px;
+    }
+
+    .stat-label {
+        font-size: 12.5px;
+        font-weight: 600;
+        color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    /* ─── CHARTS ROW ─── */
+    .charts-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+        margin-bottom: 24px;
+    }
+
+    /* ─── SECTION CARD ─── */
+    .section-card {
+        background: white;
+        border-radius: 16px;
+        border: 1px solid rgba(0,0,0,0.06);
+        box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+        overflow: hidden;
+    }
+
+    .section-card-header {
+        padding: 14px 22px;
+        border-bottom: 1px solid rgba(0,0,0,0.06);
+        background: #fafbfc;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+    }
+
+    .section-card-title {
+        font-size: 13.5px;
+        font-weight: 700;
+        color: #0f172a;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .section-card-title i { color: #0ea5e9; font-size: 15px; }
+    .section-card-body { padding: 20px 22px; }
+
+    .chart-wrap {
+        padding: 20px 22px;
+        position: relative;
+    }
+
+    /* ─── QUICK ACTIONS ─── */
+    .actions-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+    }
+
+    .action-tile {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 9px;
+        padding: 16px 12px;
+        border-radius: 12px;
+        border: 1.5px solid #e2e8f0;
+        background: white;
+        text-decoration: none;
+        transition: all 0.16s;
+        text-align: center;
+    }
+
+    .action-tile:hover {
+        border-color: #0ea5e9;
+        background: #f0f9ff;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(14,165,233,0.1);
+    }
+
+    .action-tile-icon {
+        width: 40px; height: 40px;
+        border-radius: 10px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 18px;
+    }
+
+    .action-tile-label {
+        font-size: 12px;
+        font-weight: 700;
+        color: #0f172a;
+    }
+
+    /* ─── SYSTEM HEALTH ─── */
+    .health-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 0;
+        border-bottom: 1px solid rgba(0,0,0,0.05);
+        font-size: 13px;
+        gap: 12px;
+    }
+
+    .health-row:last-child { border-bottom: none; }
+
+    .health-label { color: #475569; font-weight: 500; display: flex; align-items: center; gap: 7px; }
+    .health-label i { color: #0ea5e9; font-size: 14px; }
+
+    .health-bar-wrap {
+        flex: 1;
+        height: 6px;
+        background: #f1f5f9;
+        border-radius: 3px;
+        overflow: hidden;
+        max-width: 120px;
+    }
+
+    .health-bar-fill {
+        height: 100%;
+        border-radius: 3px;
+        transition: width 0.8s ease;
+    }
+
+    .health-val { font-family: 'DM Mono', monospace; font-size: 12.5px; font-weight: 500; color: #0f172a; }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 1100px) {
+        .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 860px) {
+        .charts-row { grid-template-columns: 1fr; }
+        .actions-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+
+    @media (max-width: 540px) {
+        .stats-grid { grid-template-columns: repeat(2, 1fr); }
+        .actions-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+</style>
+
+<!-- Page Heading -->
+<div class="page-heading">
+    <h1>Dashboard</h1>
+    <p>System overview — JeevanMeds Admin</p>
+</div>
+
+<!-- ─── STAT CARDS ─── -->
+<div class="stats-grid">
+
+    <div class="stat-card stat-card-blue">
+        <div class="stat-card-top">
+            <div class="stat-icon" style="background:#eff6ff; color:#2563eb;">
+                <i class="bi bi-people-fill"></i>
+            </div>
+            <span class="stat-trend neutral"><i class="bi bi-dash"></i> Total</span>
+        </div>
+        <div>
+            <div class="stat-val">{{ total_users }}</div>
+            <div class="stat-label">Registered Users</div>
+        </div>
+    </div>
+
+    <div class="stat-card stat-card-green">
+        <div class="stat-card-top">
+            <div class="stat-icon" style="background:#f0fdf4; color:#16a34a;">
+                <i class="bi bi-shop-window"></i>
+            </div>
+            <span class="stat-trend up"><i class="bi bi-arrow-up"></i> Active</span>
+        </div>
+        <div>
+            <div class="stat-val">{{ total_pharmacies }}</div>
+            <div class="stat-label">Pharmacies</div>
+        </div>
+    </div>
+
+    <div class="stat-card stat-card-amber">
+        <div class="stat-card-top">
+            <div class="stat-icon" style="background:#fffbeb; color:#b45309;">
+                <i class="bi bi-capsule-pill"></i>
+            </div>
+            <span class="stat-trend neutral"><i class="bi bi-dash"></i> Listed</span>
+        </div>
+        <div>
+            <div class="stat-val">{{ total_medicines }}</div>
+            <div class="stat-label">Medicines</div>
+        </div>
+    </div>
+
+    <div class="stat-card stat-card-red">
+        <div class="stat-card-top">
+            <div class="stat-icon" style="background:#fef2f2; color:#dc2626;">
+                <i class="bi bi-recycle"></i>
+            </div>
+            <span class="stat-trend {% if pending_disposal > 0 %}warn{% else %}up{% endif %}">
+                {% if pending_disposal > 0 %}
+                <i class="bi bi-exclamation"></i> Action
+                {% else %}
+                <i class="bi bi-check2"></i> Clear
+                {% endif %}
+            </span>
+        </div>
+        <div>
+            <div class="stat-val">{{ pending_disposal }}</div>
+            <div class="stat-label">Pending Disposal</div>
+        </div>
+    </div>
+
+</div>
+
+<!-- ─── CHARTS ROW ─── -->
+<div class="charts-row">
+
+    <!-- Disposal Methods -->
+    <div class="section-card">
+        <div class="section-card-header">
+            <div class="section-card-title">
+                <i class="bi bi-pie-chart-fill"></i> Disposal Methods
+            </div>
+        </div>
+        <div class="chart-wrap">
+            <canvas id="disposalChart" height="200"></canvas>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    // ── Chart defaults ──
+    Chart.defaults.font.family = "'Plus Jakarta Sans', sans-serif";
+    Chart.defaults.font.size   = 12;
+    Chart.defaults.color       = '#94a3b8';
+
+
+    // ── Disposal Methods ──
+    new Chart(document.getElementById('disposalChart'), {
+        type: 'doughnut',
+        data: {
+            labels: {{ disposal_labels | safe }},
+            datasets: [{
+                data: {{ disposal_counts | safe }},
+                backgroundColor: ['#ef4444', '#10b981', '#3b82f6', '#f97316'],
+                borderColor: 'white',
+                borderWidth: 3,
+                hoverOffset: 6,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            cutout: '65%',
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        padding: 16,
+                        usePointStyle: true,
+                        pointStyleWidth: 8,
+                        font: { size: 12 }
+                    }
+                },
+                tooltip: {
+                    backgroundColor: '#0f172a',
+                    titleColor: '#94a3b8',
+                    bodyColor: 'white',
+                    padding: 10,
+                    cornerRadius: 8,
+                }
+            }
+        }
+    });
+</script>
+
+{% endblock %}

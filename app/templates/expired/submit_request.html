@@ -1,0 +1,565 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+    /* ─── LAYOUT ─── */
+    .form-layout {
+        display: grid;
+        grid-template-columns: 1fr 300px;
+        gap: 24px;
+        align-items: start;
+        max-width: 1000px;
+    }
+
+    /* ─── BREADCRUMB ─── */
+    .breadcrumb-bar {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 12.5px;
+        color: #94a3b8;
+        margin-bottom: 22px;
+        font-weight: 500;
+    }
+
+    .breadcrumb-bar a { color: #64748b; text-decoration: none; transition: color 0.15s; }
+    .breadcrumb-bar a:hover { color: #0ea5e9; }
+    .breadcrumb-bar .sep { color: #cbd5e1; font-size: 11px; }
+    .breadcrumb-bar .current { color: #0f172a; font-weight: 600; }
+
+    /* ─── PAGE HEADING ─── */
+    .page-heading { margin-bottom: 24px; }
+
+    .page-heading h1 {
+        font-size: 22px;
+        font-weight: 800;
+        color: #0f172a;
+        letter-spacing: -0.02em;
+        margin: 0;
+    }
+
+    .page-heading p {
+        font-size: 13px;
+        color: #94a3b8;
+        margin: 4px 0 0;
+    }
+
+    /* ─── FORM CARD ─── */
+    .form-card {
+        background: white;
+        border-radius: 16px;
+        border: 1px solid rgba(0,0,0,0.06);
+        box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+        overflow: hidden;
+    }
+
+    .form-card-header {
+        padding: 16px 24px;
+        border-bottom: 1px solid rgba(0,0,0,0.06);
+        background: #fafbfc;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 13.5px;
+        font-weight: 700;
+        color: #0f172a;
+    }
+
+    .form-card-header i { color: #0ea5e9; font-size: 15px; }
+
+    .form-card-body { padding: 24px; }
+
+    /* ─── FORM FIELDS ─── */
+    .field-group {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 18px;
+        margin-bottom: 18px;
+    }
+
+    .field-group.single { grid-template-columns: 1fr; }
+
+    .field-wrap { display: flex; flex-direction: column; gap: 6px; }
+
+    .field-label {
+        font-size: 12px;
+        font-weight: 700;
+        color: #475569;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .field-label i { color: #0ea5e9; font-size: 12px; }
+
+    .field-required {
+        color: #ef4444;
+        font-size: 13px;
+        line-height: 1;
+    }
+
+    .form-input {
+        width: 100%;
+        background: #f8fafc;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 9px;
+        padding: 11px 14px;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-size: 13.5px;
+        color: #0f172a;
+        outline: none;
+        transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+        appearance: none;
+        -webkit-appearance: none;
+    }
+
+    .form-input:focus {
+        border-color: #0ea5e9;
+        box-shadow: 0 0 0 3px rgba(14,165,233,0.12);
+        background: white;
+    }
+
+    .form-input::placeholder { color: #94a3b8; }
+
+    textarea.form-input {
+        resize: vertical;
+        min-height: 100px;
+        line-height: 1.6;
+    }
+
+    /* Date input icon fix */
+    input[type="date"].form-input::-webkit-calendar-picker-indicator {
+        opacity: 0.5;
+        cursor: pointer;
+    }
+
+    /* ─── FILE UPLOAD ─── */
+    .file-upload-wrap {
+        border: 2px dashed #e2e8f0;
+        border-radius: 10px;
+        padding: 20px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.2s;
+        background: #f8fafc;
+        position: relative;
+    }
+
+    .file-upload-wrap:hover,
+    .file-upload-wrap.dragover {
+        border-color: #0ea5e9;
+        background: #f0f9ff;
+    }
+
+    .file-upload-wrap input[type="file"] {
+        position: absolute;
+        inset: 0;
+        opacity: 0;
+        cursor: pointer;
+        width: 100%;
+        height: 100%;
+    }
+
+    .file-upload-icon {
+        width: 44px; height: 44px;
+        background: #eff6ff;
+        border-radius: 10px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 20px;
+        color: #0ea5e9;
+        margin: 0 auto 10px;
+    }
+
+    .file-upload-title {
+        font-size: 13.5px;
+        font-weight: 700;
+        color: #0f172a;
+        margin-bottom: 3px;
+    }
+
+    .file-upload-sub {
+        font-size: 11.5px;
+        color: #94a3b8;
+    }
+
+    .file-preview {
+        display: none;
+        align-items: center;
+        gap: 10px;
+        background: #f0fdf4;
+        border: 1px solid #bbf7d0;
+        border-radius: 8px;
+        padding: 10px 14px;
+        font-size: 13px;
+        color: #166534;
+        font-weight: 600;
+        margin-top: 10px;
+    }
+
+    .file-preview.show { display: flex; }
+    .file-preview i { font-size: 16px; color: #22c55e; }
+
+    /* ─── SUBMIT BUTTON ─── */
+    .btn-submit {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        width: 100%;
+        padding: 13px;
+        border-radius: 10px;
+        background: #0ea5e9;
+        color: white;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-size: 14px;
+        font-weight: 700;
+        border: none;
+        cursor: pointer;
+        transition: all 0.18s;
+        box-shadow: 0 4px 14px rgba(14,165,233,0.28);
+        margin-top: 6px;
+    }
+
+    .btn-submit:hover {
+        background: #0284c7;
+        transform: translateY(-1px);
+        box-shadow: 0 6px 20px rgba(14,165,233,0.36);
+    }
+
+    /* ─── INFO SIDEBAR ─── */
+    .info-sidebar {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        position: sticky;
+        top: 88px;
+    }
+
+    .info-card {
+        background: white;
+        border-radius: 14px;
+        border: 1px solid rgba(0,0,0,0.06);
+        box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+        overflow: hidden;
+    }
+
+    .info-card-header {
+        padding: 13px 18px;
+        border-bottom: 1px solid rgba(0,0,0,0.06);
+        font-size: 13px;
+        font-weight: 700;
+        color: #0f172a;
+        display: flex;
+        align-items: center;
+        gap: 7px;
+    }
+
+    .info-card-header i { color: #0ea5e9; }
+
+    .info-card-body { padding: 16px 18px; }
+
+    /* How it works steps */
+    .how-steps {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+    }
+
+    .how-step {
+        display: flex;
+        gap: 12px;
+        align-items: flex-start;
+    }
+
+    .how-num {
+        width: 26px; height: 26px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #0ea5e9, #0284c7);
+        color: white;
+        font-size: 11px;
+        font-weight: 700;
+        display: flex; align-items: center; justify-content: center;
+        flex-shrink: 0;
+        margin-top: 1px;
+    }
+
+    .how-text strong {
+        display: block;
+        font-size: 13px;
+        font-weight: 700;
+        color: #0f172a;
+        margin-bottom: 2px;
+    }
+
+    .how-text span {
+        font-size: 12px;
+        color: #64748b;
+        line-height: 1.5;
+    }
+
+    /* Accepted items */
+    .accepted-list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .accepted-item {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        font-size: 12.5px;
+        color: #334155;
+        font-weight: 500;
+    }
+
+    .accepted-item i { color: #22c55e; font-size: 13px; }
+
+    /* Environment note */
+    .eco-note {
+        background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+        border: 1px solid #bbf7d0;
+        border-radius: 12px;
+        padding: 16px;
+        display: flex;
+        gap: 12px;
+        align-items: flex-start;
+    }
+
+    .eco-icon {
+        width: 36px; height: 36px;
+        background: #22c55e;
+        border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        color: white;
+        font-size: 16px;
+        flex-shrink: 0;
+    }
+
+    .eco-text strong {
+        display: block;
+        font-size: 13px;
+        font-weight: 700;
+        color: #166534;
+        margin-bottom: 3px;
+    }
+
+    .eco-text span {
+        font-size: 12px;
+        color: #15803d;
+        line-height: 1.5;
+    }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 860px) {
+        .form-layout { grid-template-columns: 1fr; }
+        .info-sidebar { position: static; }
+        .field-group { grid-template-columns: 1fr 1fr; }
+    }
+
+    @media (max-width: 520px) {
+        .field-group { grid-template-columns: 1fr; }
+    }
+</style>
+
+<!-- Breadcrumb -->
+<div class="breadcrumb-bar">
+    <a href="/">Home</a>
+    <span class="sep"><i class="bi bi-chevron-right"></i></span>
+    <a href="{{ url_for('main.expired_history') }}">Expired Requests</a>
+    <span class="sep"><i class="bi bi-chevron-right"></i></span>
+    <span class="current">New Request</span>
+</div>
+
+<!-- Page Heading -->
+<div class="page-heading">
+    <h1>Expired Medicine Take-Back</h1>
+    <p>Submit your expired medicines for safe and responsible disposal</p>
+</div>
+
+<div class="form-layout">
+
+    <!-- ══════════════ FORM ══════════════ -->
+    <div class="form-card">
+        <div class="form-card-header">
+            <i class="bi bi-recycle"></i> Request Details
+        </div>
+        <div class="form-card-body">
+            <form method="POST" enctype="multipart/form-data">
+
+                <!-- Row 1: Name + Expiry -->
+                <div class="field-group">
+                    <div class="field-wrap">
+                        <label class="field-label">
+                            <i class="bi bi-capsule-pill"></i> Medicine Name
+                            <span class="field-required">*</span>
+                        </label>
+                        <input type="text" name="medicine_name" class="form-input"
+                               placeholder="e.g. Paracetamol 500mg" required>
+                    </div>
+                    <div class="field-wrap">
+                        <label class="field-label">
+                            <i class="bi bi-calendar-x"></i> Expiry Date
+                            <span class="field-required">*</span>
+                        </label>
+                        <input type="date" name="expiry_date" class="form-input" required>
+                    </div>
+                </div>
+
+                <!-- Row 2: Quantity + Photo -->
+                <div class="field-group">
+                    <div class="field-wrap">
+                        <label class="field-label">
+                            <i class="bi bi-stack"></i> Quantity
+                            <span class="field-required">*</span>
+                        </label>
+                        <input type="number" name="quantity" class="form-input"
+                               placeholder="Number of tablets / bottles" min="1" required>
+                    </div>
+                    <div class="field-wrap">
+                        <label class="field-label">
+                            <i class="bi bi-image"></i> Medicine Photo
+                            <span style="font-size:10px; font-weight:500; color:#94a3b8; text-transform:none; letter-spacing:0;">(optional)</span>
+                        </label>
+                        <div class="file-upload-wrap" id="dropZone">
+                            <input type="file" name="image" accept="image/*" id="fileInput">
+                            <div class="file-upload-icon"><i class="bi bi-cloud-upload"></i></div>
+                            <div class="file-upload-title">Click or drag to upload</div>
+                            <div class="file-upload-sub">JPG, PNG up to 5MB</div>
+                        </div>
+                        <div class="file-preview" id="filePreview">
+                            <i class="bi bi-check-circle-fill"></i>
+                            <span id="fileName">No file selected</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Row 3: Address -->
+                <div class="field-group single">
+                    <div class="field-wrap">
+                        <label class="field-label">
+                            <i class="bi bi-geo-alt"></i> Pickup Address
+                            <span class="field-required">*</span>
+                        </label>
+                        <textarea name="pickup_address" class="form-input" rows="3"
+                                  placeholder="Enter full pickup address including flat no., street, city & PIN code"
+                                  required></textarea>
+                        <div style="font-size:11.5px; color:#94a3b8; margin-top:4px; display:flex; align-items:center; gap:4px;">
+                            <i class="bi bi-info-circle" style="color:#0ea5e9;"></i>
+                            Our team will collect from this address after approval
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-submit">
+                    <i class="bi bi-send-fill" style="font-size:13px;"></i>
+                    Submit Request
+                </button>
+
+            </form>
+        </div>
+    </div>
+
+    <!-- ══════════════ SIDEBAR ══════════════ -->
+    <div class="info-sidebar">
+
+        <!-- How it works -->
+        <div class="info-card">
+            <div class="info-card-header">
+                <i class="bi bi-question-circle-fill"></i> How It Works
+            </div>
+            <div class="info-card-body">
+                <div class="how-steps">
+                    <div class="how-step">
+                        <div class="how-num">1</div>
+                        <div class="how-text">
+                            <strong>Submit this form</strong>
+                            <span>Fill in your medicine details and pickup address</span>
+                        </div>
+                    </div>
+                    <div class="how-step">
+                        <div class="how-num">2</div>
+                        <div class="how-text">
+                            <strong>Get QR code</strong>
+                            <span>After approval, a unique QR is generated for your request</span>
+                        </div>
+                    </div>
+                    <div class="how-step">
+                        <div class="how-num">3</div>
+                        <div class="how-text">
+                            <strong>Visit the pharmacy</strong>
+                            <span>Show your QR code to our staff for pickup & disposal</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Accepted items -->
+        <div class="info-card">
+            <div class="info-card-header">
+                <i class="bi bi-check2-circle"></i> What We Accept
+            </div>
+            <div class="info-card-body">
+                <div class="accepted-list">
+                    <div class="accepted-item"><i class="bi bi-check-circle-fill"></i> Expired tablets & capsules</div>
+                    <div class="accepted-item"><i class="bi bi-check-circle-fill"></i> Expired syrups & liquids</div>
+                    <div class="accepted-item"><i class="bi bi-check-circle-fill"></i> Unused prescription drugs</div>
+                    <div class="accepted-item"><i class="bi bi-check-circle-fill"></i> OTC medicines past expiry</div>
+                    <div class="accepted-item"><i class="bi bi-check-circle-fill"></i> Vitamins & supplements</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Eco note -->
+        <div class="eco-note">
+            <div class="eco-icon"><i class="bi bi-tree-fill"></i></div>
+            <div class="eco-text">
+                <strong>You're making a difference</strong>
+                <span>Improper disposal of medicines pollutes water sources and harms ecosystems. Every submission counts.</span>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+    // File upload preview
+    const fileInput = document.getElementById('fileInput');
+    const filePreview = document.getElementById('filePreview');
+    const fileName = document.getElementById('fileName');
+    const dropZone = document.getElementById('dropZone');
+
+    fileInput.addEventListener('change', function () {
+        if (this.files && this.files[0]) {
+            fileName.textContent = this.files[0].name;
+            filePreview.classList.add('show');
+        }
+    });
+
+    // Drag & drop visual
+    dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropZone.classList.add('dragover');
+    });
+
+    dropZone.addEventListener('dragleave', () => {
+        dropZone.classList.remove('dragover');
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('dragover');
+        const file = e.dataTransfer.files[0];
+        if (file) {
+            fileInput.files = e.dataTransfer.files;
+            fileName.textContent = file.name;
+            filePreview.classList.add('show');
+        }
+    });
+</script>
+
+{% endblock %}

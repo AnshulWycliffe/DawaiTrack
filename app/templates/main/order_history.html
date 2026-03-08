@@ -1,0 +1,418 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+    /* ─── PAGE HEADING ─── */
+    .page-heading {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        margin-bottom: 24px;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .page-heading h1 {
+        font-size: 22px;
+        font-weight: 800;
+        color: #0f172a;
+        letter-spacing: -0.02em;
+        margin: 0;
+    }
+
+    .page-heading p {
+        font-size: 13px;
+        color: #94a3b8;
+        margin: 3px 0 0;
+    }
+
+    .order-count-badge {
+        font-family: 'DM Mono', monospace;
+        font-size: 12px;
+        font-weight: 500;
+        background: white;
+        border: 1px solid rgba(0,0,0,0.08);
+        color: #64748b;
+        padding: 6px 14px;
+        border-radius: 20px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+
+    /* ─── ORDER CARD ─── */
+    .order-card {
+        background: white;
+        border-radius: 16px;
+        border: 1px solid rgba(0,0,0,0.06);
+        box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+        overflow: hidden;
+        margin-bottom: 14px;
+        transition: all 0.22s;
+    }
+
+    .order-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 28px rgba(0,0,0,0.09);
+        border-color: rgba(14,165,233,0.18);
+    }
+
+    /* Card header strip */
+    .order-card-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 14px 22px;
+        border-bottom: 1px solid rgba(0,0,0,0.05);
+        background: #fafbfc;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .order-id-wrap {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .order-id-label {
+        font-size: 10.5px;
+        font-weight: 600;
+        letter-spacing: 0.07em;
+        text-transform: uppercase;
+        color: #94a3b8;
+    }
+
+    .order-id-value {
+        font-family: 'DM Mono', monospace;
+        font-size: 13px;
+        font-weight: 500;
+        color: #0f172a;
+    }
+
+    .order-date {
+        font-size: 12.5px;
+        color: #94a3b8;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    /* Status pills */
+    .status-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 11.5px;
+        font-weight: 700;
+        padding: 4px 11px;
+        border-radius: 20px;
+        letter-spacing: 0.02em;
+    }
+
+    .status-pill::before {
+        content: '';
+        width: 6px; height: 6px;
+        border-radius: 50%;
+    }
+
+    .status-placed  { background: #f0fdf4; color: #166534; }
+    .status-placed::before  { background: #22c55e; }
+    .status-processing { background: #eff6ff; color: #1d4ed8; }
+    .status-processing::before { background: #3b82f6; }
+    .status-shipped    { background: #f0f9ff; color: #0369a1; }
+    .status-shipped::before    { background: #0ea5e9; }
+    .status-delivered  { background: #f0fdf4; color: #166534; }
+    .status-delivered::before  { background: #22c55e; }
+    .status-cancelled  { background: #fef2f2; color: #991b1b; }
+    .status-cancelled::before  { background: #ef4444; }
+
+    /* Card body */
+    .order-card-body {
+        padding: 18px 22px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        flex-wrap: wrap;
+    }
+
+    /* Item previews */
+    .order-items-preview {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex: 1;
+        min-width: 0;
+    }
+
+    .item-img-stack {
+        display: flex;
+        align-items: center;
+    }
+
+    .item-thumb {
+        width: 44px; height: 44px;
+        background: #f8fafc;
+        border-radius: 9px;
+        border: 1.5px solid white;
+        display: flex; align-items: center; justify-content: center;
+        overflow: hidden;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+        flex-shrink: 0;
+    }
+
+    .item-thumb + .item-thumb { margin-left: -10px; }
+
+    .item-thumb img {
+        max-width: 36px; max-height: 36px;
+        object-fit: contain;
+    }
+
+    .item-thumb.more-count {
+        background: #f1f5f9;
+        font-family: 'DM Mono', monospace;
+        font-size: 11px;
+        font-weight: 700;
+        color: #64748b;
+    }
+
+    .order-items-text { min-width: 0; }
+
+    .items-names {
+        font-size: 13.5px;
+        font-weight: 600;
+        color: #0f172a;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 280px;
+    }
+
+    .items-count {
+        font-size: 12px;
+        color: #94a3b8;
+        margin-top: 2px;
+    }
+
+    /* Right side */
+    .order-card-right {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        flex-shrink: 0;
+    }
+
+    .order-total {
+        text-align: right;
+    }
+
+    .order-total-label {
+        font-size: 10.5px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        color: #94a3b8;
+        margin-bottom: 2px;
+    }
+
+    .order-total-value {
+        font-family: 'DM Mono', monospace;
+        font-size: 17px;
+        font-weight: 500;
+        color: #0f172a;
+    }
+
+    .btn-details {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 9px 16px;
+        border-radius: 9px;
+        border: 1.5px solid #e2e8f0;
+        background: white;
+        color: #334155;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-size: 13px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.15s;
+        white-space: nowrap;
+    }
+
+    .btn-details:hover {
+        border-color: #0ea5e9;
+        color: #0ea5e9;
+        background: #f0f9ff;
+    }
+
+    /* ─── EMPTY STATE ─── */
+    .empty-orders {
+        text-align: center;
+        padding: 72px 32px;
+        background: white;
+        border-radius: 16px;
+        border: 1px solid rgba(0,0,0,0.06);
+        box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+    }
+
+    .empty-icon {
+        width: 80px; height: 80px;
+        background: #f1f5f9;
+        border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        margin: 0 auto 18px;
+        font-size: 34px;
+        color: #94a3b8;
+    }
+
+    .empty-orders h4 {
+        font-size: 18px;
+        font-weight: 800;
+        color: #0f172a;
+        margin-bottom: 6px;
+    }
+
+    .empty-orders p {
+        font-size: 14px;
+        color: #64748b;
+        margin-bottom: 22px;
+    }
+
+    .btn-shop {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 11px 24px;
+        background: #0ea5e9;
+        color: white;
+        border-radius: 9px;
+        font-size: 14px;
+        font-weight: 700;
+        text-decoration: none;
+        transition: all 0.15s;
+    }
+
+    .btn-shop:hover {
+        background: #0284c7;
+        color: white;
+        transform: translateY(-1px);
+    }
+
+    /* Fade-in animation */
+    @keyframes fadeUp {
+        from { opacity: 0; transform: translateY(8px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .order-card {
+        animation: fadeUp 0.3s ease both;
+    }
+
+    {% for i in range(20) %}
+    .order-card:nth-child({{ i + 1 }}) { animation-delay: {{ i * 0.05 }}s; }
+    {% endfor %}
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 640px) {
+        .order-card-right { flex-direction: column; align-items: flex-start; gap: 12px; }
+        .order-total { text-align: left; }
+        .items-names { max-width: 180px; }
+        .order-card-head { flex-direction: column; align-items: flex-start; }
+    }
+</style>
+
+<!-- Page Header -->
+<div class="page-heading">
+    <div>
+        <h1>My Orders</h1>
+        <p>Track and manage your medicine orders</p>
+    </div>
+    <span class="order-count-badge">
+        {{ orders|length if orders else 0 }} order{% if not orders or orders|length != 1 %}s{% endif %}
+    </span>
+</div>
+
+{% if orders %}
+
+    {% for order in orders %}
+    <div class="order-card">
+
+        <!-- Card Header -->
+        <div class="order-card-head">
+            <div class="order-id-wrap">
+                <span class="order-id-label">Order</span>
+                <span class="order-id-value">#{{ order.id }}</span>
+            </div>
+
+            <div style="display:flex; align-items:center; gap:14px; flex-wrap:wrap;">
+                <span class="order-date">
+                    <i class="bi bi-calendar3" style="font-size:12px;"></i>
+                    {{ order.created_at.strftime("%d %b %Y") }}
+                </span>
+
+                <!-- Dynamic status class mapping -->
+                {% set status_lower = order.status | lower %}
+                <span class="status-pill status-{{ status_lower }}">
+                    {{ order.status }}
+                </span>
+            </div>
+        </div>
+
+        <!-- Card Body -->
+        <div class="order-card-body">
+
+            <!-- Items Preview -->
+            <div class="order-items-preview">
+                <div class="item-img-stack">
+                    <div class="item-thumb">
+                        <i class="bi bi-capsule-pill" style="font-size:18px; color:#94a3b8;"></i>
+                        
+                    </div>
+                    {% if order.items|length > 3 %}
+                    <div class="item-thumb more-count">+{{ order.items|length - 3 }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="order-items-text">
+                    <div class="items-names">
+                        {% for item in order.items[:2] %}
+                            {{ item.name }}{% if not loop.last %}, {% endif %}
+                        {% endfor %}
+                        {% if order.items|length > 2 %}
+                            <span style="color:#94a3b8;"> +{{ order.items|length - 2 }} more</span>
+                        {% endif %}
+                    </div>
+                    <div class="items-count">
+                        {{ order.items|length }} item{% if order.items|length != 1 %}s{% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Total + Action -->
+            <div class="order-card-right">
+                <div class="order-total">
+                    <div class="order-total-label">Total</div>
+                    <div class="order-total-value">₹{{ order.total_amount }}</div>
+                </div>
+                <a href="{{ url_for('order.detail', order_id=order.id) }}" class="btn-details">
+                    View Details <i class="bi bi-arrow-right" style="font-size:12px;"></i>
+                </a>
+            </div>
+
+        </div>
+
+    </div>
+    {% endfor %}
+
+{% else %}
+
+    <div class="empty-orders">
+        <div class="empty-icon"><i class="bi bi-bag-x"></i></div>
+        <h4>No orders yet</h4>
+        <p>You haven't placed any orders. Browse our medicines and get started!</p>
+        <a href="/" class="btn-shop"><i class="bi bi-bag-heart"></i> Start Shopping</a>
+    </div>
+
+{% endif %}
+
+{% endblock %}
