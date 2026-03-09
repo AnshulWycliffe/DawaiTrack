@@ -199,6 +199,74 @@
 
     .discount-preview.show { display: flex; }
 
+    .file-upload-wrap {
+        border: 2px dashed #e2e8f0;
+        border-radius: 10px;
+        padding: 20px 16px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.2s;
+        background: #f8fafc;
+        position: relative;
+    }
+
+    .file-upload-wrap:hover, .file-upload-wrap.dragover {
+        border-color: #0ea5e9;
+        background: #f0f9ff;
+    }
+
+    .file-upload-wrap input[type="file"] {
+        position: absolute;
+        inset: 0;
+        opacity: 0;
+        cursor: pointer;
+        width: 100%;
+        height: 100%;
+    }
+
+    .upload-icon {
+        width: 40px; height: 40px;
+        background: #eff6ff;
+        border-radius: 9px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 18px;
+        color: #0ea5e9;
+        margin: 0 auto 8px;
+    }
+
+    .upload-title { font-size: 13px; font-weight: 700; color: #0f172a; margin-bottom: 2px; }
+    .upload-sub { font-size: 11.5px; color: #94a3b8; }
+
+    /* Image preview */
+    .img-preview-wrap {
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+        margin-top: 12px;
+    }
+
+    .img-preview-wrap.show { display: flex; }
+
+    .img-preview-wrap img {
+        max-height: 120px;
+        max-width: 100%;
+        border-radius: 10px;
+        border: 1px solid rgba(0,0,0,0.08);
+        object-fit: contain;
+        background: white;
+        padding: 6px;
+    }
+
+    .img-preview-name {
+        font-size: 12px;
+        color: #16a34a;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
     /* ─── TOGGLE ROWS ─── */
     .toggle-row {
         display: flex;
@@ -406,7 +474,7 @@
     <p>Update details for <strong style="color:#0f172a;">{{ medicine.name }}</strong></p>
 </div>
 
-<form method="POST">
+<form method="POST" enctype="multipart/form-data">
 <div class="form-layout">
 
     <!-- ══════════════ LEFT COLUMN ══════════════ -->
@@ -506,7 +574,26 @@
 
     <!-- ══════════════ RIGHT COLUMN ══════════════ -->
     <div>
-
+        <div class="section-card">
+            <div class="section-card-header">
+                <i class="bi bi-image"></i> Medicine Image
+            </div>
+            <div class="section-card-body">
+                <div class="file-upload-wrap" id="dropZone">
+                    <input type="file" name="image" accept="image/*" id="imageInput">
+                    <div class="upload-icon"><i class="bi bi-cloud-upload"></i></div>
+                    <div class="upload-title">Click or drag to upload</div>
+                    <div class="upload-sub">PNG, JPG up to 5MB</div>
+                </div>
+                <div class="img-preview-wrap" id="previewWrap">
+                    <img id="previewImg" src="" alt="Preview">
+                    <div class="img-preview-name">
+                        <i class="bi bi-check-circle-fill"></i>
+                        <span id="previewNameIMG"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
         <!-- Live Preview Card -->
         <div class="section-card" style="margin-bottom:16px;">
             <div class="section-card-header">
@@ -603,6 +690,44 @@
 </form>
 
 <script>
+
+    // ── Image upload preview ──
+    const imageInput = document.getElementById('imageInput');
+    const dropZone   = document.getElementById('dropZone');
+    const previewWrap = document.getElementById('previewWrap');
+    const previewImg  = document.getElementById('previewImg');
+    const previewName = document.getElementById('previewNameIMG');
+
+    {% if medicine.image_url %}
+            previewImg.src = `{{url_for('static', filename=medicine.image_url)}}`;
+            previewName.textContent = `Already Uploaded`;
+            previewWrap.classList.add('show');
+    {% endif %}
+
+    function showPreview(file) {
+        if (!file || !file.type.startsWith('image/')) return;
+        const reader = new FileReader();
+        reader.onload = e => {
+            previewImg.src = e.target.result;
+            previewName.textContent = file.name;
+            previewWrap.classList.add('show');
+        };
+        reader.readAsDataURL(file);
+    }
+
+    imageInput.addEventListener('change', () => {
+        if (imageInput.files[0]) showPreview(imageInput.files[0]);
+    });
+
+    dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
+    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+    dropZone.addEventListener('drop', e => {
+        e.preventDefault();
+        dropZone.classList.remove('dragover');
+        const file = e.dataTransfer.files[0];
+        if (file) { imageInput.files = e.dataTransfer.files; showPreview(file); }
+    });
+
     // ── Live preview updater ──
     function updatePreview() {
         const name = document.getElementById('previewName').value || '—';

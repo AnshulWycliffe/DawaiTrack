@@ -123,6 +123,24 @@ def edit_medicine(medicine_id):
             request.form.get("is_active")
         )
 
+        image_file = request.files.get("image")
+
+        filename = None
+
+        if image_file and image_file.filename != "":
+            
+
+            filename = f"{uuid.uuid4().hex}_{secure_filename(image_file.filename)}"
+            
+            save_path = os.path.join(
+                current_app.root_path,
+                "static/uploads/medicines",
+                filename
+            )
+
+            image_file.save(save_path)
+            medicine.image_url = f"uploads/medicines/{filename}"
+
         medicine.save()
 
         flash("Medicine updated successfully", "success")

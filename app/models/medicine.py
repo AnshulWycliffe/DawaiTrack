@@ -57,7 +57,6 @@ class Medicine(Document):
     # -----------------------------
 
     image_url = StringField(required=False)
-    gallery_images = ListField(StringField())
 
 
     # Pharmacy Owner
