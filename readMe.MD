@@ -35,7 +35,7 @@ lifecycle management system**.
 
 # Live Preview
 
-- Website: (LINK)[https://jeevan-meds.vercel.app/]
+- Website: [LINK](https://jeevan-meds.vercel.app/)
 
 # Key Features
 
