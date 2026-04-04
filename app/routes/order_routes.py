@@ -437,6 +437,6 @@ def invoice(order_id):
         file_path,
         mimetype="application/pdf",
         as_attachment=True,
-        download_name=f"JeevanMeds_Invoice_{order.id}.pdf",
+        download_name=f"DawaiTrack_Invoice_{order.id}.pdf",
     )
 
