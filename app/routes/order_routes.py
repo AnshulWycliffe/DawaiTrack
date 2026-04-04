@@ -198,7 +198,7 @@ def _draw_page_chrome(c: canvas.Canvas, doc):
     # Company name
     c.setFillColor(colors.white)
     c.setFont("Helvetica-Bold", 16)
-    c.drawString(_MARGIN, _PAGE_H - 0.37 * inch, "JeevanMeds")
+    c.drawString(_MARGIN, _PAGE_H - 0.37 * inch, "DawaiTrack")
 
     # Tagline
     c.setFont("Helvetica", 8)
@@ -220,7 +220,7 @@ def _draw_page_chrome(c: canvas.Canvas, doc):
     c.setFillColor(_MID_GREY)
     c.drawString(
         _MARGIN, 0.35 * inch,
-        "JeevanMeds · support@jeevanmeds.com · www.jeevanmeds.com",
+        "DawaiTrack · support@dawaitrack.com · www.dawaitrack.com",
     )
     c.drawRightString(
         _PAGE_W - _MARGIN, 0.35 * inch,
@@ -386,14 +386,14 @@ def _build_invoice(file_path: str, order: Order) -> None:
 
     notes_tbl = Table([[
         Paragraph(
-            "<b>Notes</b><br/>Thank you for choosing JeevanMeds! "
+            "<b>Notes</b><br/>Thank you for choosing DawaiTrack! "
             "All medicines are sourced from licensed distributors and stored "
             "under recommended conditions.",
             norm_s,
         ),
         Paragraph(
             "<b>Payment Terms</b><br/>Payment due upon receipt. "
-            "For queries contact support@jeevanmeds.com or call 1800-XXX-XXXX.",
+            "For queries contact support@dawaitrack.com or call 1800-XXX-XXXX.",
             norm_s,
         ),
     ]], colWidths=[3.4 * inch, 3.1 * inch])

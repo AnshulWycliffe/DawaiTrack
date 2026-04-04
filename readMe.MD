@@ -1,115 +1,105 @@
-# JeevanMeds
+# 🟢 DawaiTrack
 
-## Smart Medicine Platform with Expired Medicine Take‑Back System
+### Smart Medicine Platform with Expired Medicine Take-Back System
 
-JeevanMeds is a healthcare platform that combines **online pharmacy
-services, medicine lifecycle management, and an expired medicine
-take‑back system**.
+![Python](https://img.shields.io/badge/Python-3.10+-blue.svg)
+![Flask](https://img.shields.io/badge/Flask-Web_Framework-black.svg)
+![MongoDB](https://img.shields.io/badge/MongoDB-Database-green.svg)
+![License](https://img.shields.io/badge/License-MIT-yellow.svg)
+![Status](https://img.shields.io/badge/Project-Active-brightgreen.svg)
 
-The platform enables users to purchase medicines, track orders, and
-safely return expired medicines. Pharmacies collect expired medicines
-using QR verification, and administrators ensure proper biomedical
-disposal.
+---
 
-This system promotes **safe medicine usage, environmental
-sustainability, and responsible healthcare practices**.
+## 📌 Overview
 
-------------------------------------------------------------------------
+DawaiTrack is a healthcare platform that combines **online pharmacy services, medicine lifecycle management, and an expired medicine take-back system**.
 
-# Project Motivation
+The platform enables users to purchase medicines, track orders, and safely return expired medicines. Pharmacies collect expired medicines using QR verification, and administrators ensure proper biomedical disposal.
+
+This system promotes **safe medicine usage, environmental sustainability, and responsible healthcare practices**.
+
+---
+
+## 🎯 Project Motivation
 
 Expired medicines stored at home can cause:
 
--   Accidental consumption
--   Environmental contamination
--   Unsafe disposal practices
+* Accidental consumption
+* Environmental contamination
+* Unsafe disposal practices
 
-Most pharmacy platforms only focus on **medicine delivery**.\
-They lack structured mechanisms for **tracking expired medicines and
-disposing them safely**.
+Most pharmacy platforms only focus on **medicine delivery**.
+They lack structured mechanisms for **tracking expired medicines and disposing them safely**.
 
-JeevanMeds solves this problem by implementing a **complete medicine
-lifecycle management system**.
+---
 
-------------------------------------------------------------------------
+## 🚀 Key Features
 
-# Key Features
+### 👤 User Features
 
-## User Features
+* User registration and login
+* Medicine browsing and search
+* Add to cart and checkout
+* Order history
+* Expired medicine return request
+* QR code generation for pickup verification
 
--   User registration and login
--   Medicine browsing and search
--   Add to cart and checkout
--   Order history
--   Expired medicine return request
--   QR code generation for pickup verification
+---
 
-------------------------------------------------------------------------
+### 🏥 Pharmacy Panel
 
-## Pharmacy Panel
+* Medicine management
+* Batch-based inventory management
+* FEFO stock deduction (First Expiry First Out)
+* Order management
+* Expired medicine request verification
+* QR code scanning for collection
 
-Pharmacy users manage medicine inventory and expired medicine pickup
-operations.
+---
 
-Features include:
+### 🛠 Admin Panel
 
--   Medicine management
--   Batch‑based inventory management
--   FEFO stock deduction (First Expiry First Out)
--   Order management
--   Expired medicine request verification
--   QR code scanning for collection
+* Dashboard analytics
+* Audit logging system
+* Disposal management
+* Disposal method tracking
 
-------------------------------------------------------------------------
+---
 
-## Admin Panel
-
-Admin ensures safe disposal and monitors system activity.
-
-Admin capabilities:
-
--   Dashboard analytics
--   Audit logging system
--   Disposal management
--   Disposal method tracking
-
-------------------------------------------------------------------------
-
-# System Roles
+## 👥 System Roles
 
 ### Customer
 
--   Browse medicines
--   Place orders
--   Request expired medicine pickup
--   Show QR code during pickup
+* Browse medicines
+* Place orders
+* Request expired medicine pickup
+* Show QR code during pickup
 
 ### Pharmacy
 
--   Manage medicines
--   Manage inventory batches
--   Verify expired requests
--   Scan QR codes
--   Collect expired medicines
+* Manage medicines
+* Manage inventory batches
+* Verify expired requests
+* Scan QR codes
+* Collect expired medicines
 
 ### Admin
 
--   Monitor system statistics
--   View audit logs
--   Confirm final medicine disposal
+* Monitor system statistics
+* View audit logs
+* Confirm final medicine disposal
 
-------------------------------------------------------------------------
+---
 
-# System Architecture
+## ⚙️ System Architecture
 
-``` mermaid
+```mermaid
 graph TD
-
 User[Customer]
 Pharmacy[Pharmacy Panel]
 Admin[Admin Panel]
 
-User -->|Order Medicines| Platform[JeevanMeds Platform]
+User -->|Order Medicines| Platform[DawaiTrack Platform]
 User -->|Expired Medicine Request| Platform
 
 Platform --> Pharmacy
@@ -122,13 +112,12 @@ Admin -->|Final Disposal| Platform
 Platform --> Database
 ```
 
-------------------------------------------------------------------------
+---
 
-# High Level Architecture (HLD)
+## 🧠 High Level Architecture (HLD)
 
-``` mermaid
+```mermaid
 flowchart LR
-
 Client[Web Browser / Frontend]
 Server[Flask Backend]
 DB[(MongoDB Database)]
@@ -145,13 +134,12 @@ PharmacyModule --> DB
 AdminModule --> DB
 ```
 
-------------------------------------------------------------------------
+---
 
-# Medicine Lifecycle Diagram
+## 🔄 Medicine Lifecycle
 
-``` mermaid
+```mermaid
 flowchart TD
-
 A[Medicine Manufactured]
 B[Inventory Batch Added]
 C[Medicine Purchased by User]
@@ -170,13 +158,12 @@ F --> G
 G --> H
 ```
 
-------------------------------------------------------------------------
+---
 
-# Expired Medicine Collection Flow
+## 🔁 Expired Medicine Collection Flow
 
-``` mermaid
+```mermaid
 sequenceDiagram
-
 participant User
 participant Pharmacy
 participant System
@@ -196,13 +183,12 @@ Pharmacy->>Admin: Send for Disposal
 Admin->>System: Confirm DISPOSED
 ```
 
-------------------------------------------------------------------------
+---
 
-# Disposal Workflow
+## ♻️ Disposal Workflow
 
-``` mermaid
+```mermaid
 flowchart LR
-
 Collected[Collected Medicines]
 AdminCheck[Admin Verification]
 
@@ -219,13 +205,12 @@ AdminCheck --> Method3
 AdminCheck --> Method4
 ```
 
-------------------------------------------------------------------------
+---
 
-# Database Entity Relationship Diagram (ERD)
+## 🧬 Database ER Diagram
 
-``` mermaid
+```mermaid
 erDiagram
-
 USER ||--o{ ORDER : places
 USER ||--o{ EXPIRED_REQUEST : submits
 
@@ -235,118 +220,180 @@ MEDICINE ||--o{ ORDER_ITEM : contains
 ORDER ||--|{ ORDER_ITEM : includes
 
 EXPIRED_REQUEST }o--|| USER : created_by
-
 AUDIT_LOG }o--|| USER : performed_by
 ```
 
-------------------------------------------------------------------------
+---
 
-# Project Structure
+## 📁 Project Structure
 
-    app
-    │
-    ├── config
-    │   ├── settings.py
-    │   ├── constants.py
-    │   └── roles.py
-    │
-    ├── extensions
-    │   ├── database.py
-    │   ├── login_manager.py
-    │   └── storage.py
-    │
-    ├── models
-    │   ├── user.py
-    │   ├── medicine.py
-    │   ├── inventory_batch.py
-    │   ├── order.py
-    │   ├── expired_request.py
-    │   └── audit_log.py
-    │
-    ├── routes
-    │   ├── auth_routes.py
-    │   ├── main_routes.py
-    │   ├── pharmacy_routes.py
-    │   └── admin_routes.py
-    │
-    ├── templates
-    │   ├── main
-    │   ├── pharmacy
-    │   └── admin
-    │
-    └── utils
-        └── audit_logger.py
+```
+DawaiTrack/
+├── app/
+│   ├── config/
+│   ├── extensions/
+│   ├── models/
+│   ├── routes/
+│   ├── services/
+│   ├── templates/
+│   ├── static/
+│   └── utils/
+├── tests/
+├── run.py
+├── requirements.txt
+└── README.md
+```
 
-------------------------------------------------------------------------
+---
 
-# Technology Stack
+## 🛠 Technology Stack
 
 ### Backend
 
--   Python
--   Flask
--   MongoDB
--   MongoEngine ODM
+* Python
+* Flask
+* MongoDB
+* MongoEngine
 
 ### Frontend
 
--   HTML
--   CSS
--   Bootstrap
--   JavaScript
+* HTML
+* CSS
+* Bootstrap
+* JavaScript
 
-### Tools & Libraries
+### Tools
 
--   Chart.js (Admin analytics)
--   jsQR (QR scanning)
--   QR Code API
+* Chart.js
+* jsQR
+* QR Code API
 
-------------------------------------------------------------------------
+---
 
-# Audit Logging System
+## 🔐 API Endpoints
+
+### Search
+```
+[GET] /api/search-suggestions?q=<query>
+```
+### Cart
+```
+[POST] /cart/add/<slug>
+[GET] /cart
+```
+### Orders
+```
+[POST] /order/checkout
+[GET] /order/history
+```
+### Expired Medicines
+```
+[POST] /expired/request
+[GET] /expired/history
+```
+### Pharmacy
+```
+[POST] /pharmacy/expired-request/approve/<id>
+[POST] /pharmacy/expired-request/collect/<id>
+```
+### Admin
+```
+[GET] /admin/dashboard
+[GET] /admin/audit-logs
+[POST] /admin/dispose
+```
+---
+
+## 📸 Screenshots
+
+> Replace these with actual images
+
+* Home Page
+* Cart System
+* Order History
+* Expired Request
+* Pharmacy Panel
+* Admin Dashboard
+
+---
+
+## ⚙️ Setup & Installation
+
+### 1. Clone Repository
+
+```
+git clone https://github.com/anshulwycliffe/DawaiTrack.git
+cd DawaiTrack
+```
+
+### 2. Install Dependencies
+
+```
+pip install -r requirements.txt
+```
+
+### 3. Configure Environment
+
+Create `.env`:
+
+```
+SECRET_KEY=your_secret_key
+MONGO_URI=mongodb://localhost:27017/dawaitrack
+```
+
+### 4. Run Application
+
+```
+python main.py
+```
+
+---
+
+## Audit Logging System
+
+Tracks:
+
+* Orders
+* Inventory
+* Disposal
 
 Important actions are recorded for transparency.
 
 Example logs:
 
-    12 Mar 2026 14:20  Pharmacy_01  ADD_BATCH
+    [12 Mar 2026 14:20]  Pharmacy_01  ADD_BATCH
     Added batch B023 (Paracetamol)
 
-    12 Mar 2026 15:05  User_22  ORDER_PLACED
+    [12 Mar 2026 15:05]  User_22  ORDER_PLACED
     Order ₹350
 
-    12 Mar 2026 18:00  Admin  DISPOSE_MEDICINE
+    [12 Mar 2026 18:00]  Admin  DISPOSE_MEDICINE
     Crocin disposed via Incineration
+---
 
-------------------------------------------------------------------------
+## Environmental Impact
 
-# Environmental Impact
+* Prevents unsafe storage
+* Reduces pollution
+* Ensures safe disposal
 
-JeevanMeds promotes responsible medicine disposal by:
+---
 
--   Preventing unsafe household storage
--   Reducing pharmaceutical contamination
--   Ensuring proper biomedical waste disposal
+## Future Enhancements
 
-------------------------------------------------------------------------
+* Mobile App
+* AI alerts
+* Barcode scanning
+* Cloud scaling
 
-# Future Enhancements
+---
 
-Possible improvements include:
+## 📜 License
 
--   AI based medicine expiry detection
--   Barcode scanning for medicines
--   Mobile application support
--   Automated expiry alerts
--   Healthcare regulatory integration
+MIT License
 
-------------------------------------------------------------------------
+---
 
-# Conclusion
+## ✅ Conclusion
 
-JeevanMeds provides a **complete digital ecosystem for managing the
-medicine lifecycle** from purchase to safe disposal.
-
-By combining e‑commerce functionality, QR verification, and disposal
-management, the platform enhances healthcare safety and promotes
-environmental sustainability.
+DawaiTrack provides a **complete medicine lifecycle ecosystem**, ensuring safe usage, verified collection, and responsible disposal.

@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>JeevanMeds</title>
+    <title>DawaiTrack</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
@@ -21,6 +21,8 @@
             --text-muted-nav: #64748b;
             --radius: 9px;
             --content-bg: #f0f4f8;
+            --footer-bg: #0a1120;
+            --footer-border: rgba(255,255,255,0.06);
         }
 
         *, *::before, *::after { box-sizing: border-box; }
@@ -29,6 +31,13 @@
             font-family: 'Plus Jakarta Sans', sans-serif;
             background: var(--content-bg);
             margin: 0;
+            min-height: 100vh;
+            animation: pageFadeIn 0.35s ease both;
+        }
+
+        @keyframes pageFadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to   { opacity: 1; transform: translateY(0); }
         }
 
         /* ─── NAVBAR ─── */
@@ -39,6 +48,16 @@
             top: 0;
             z-index: 200;
             padding: 0;
+            overflow: visible;
+        }
+
+        /* Thin accent line under nav */
+        .site-nav::after {
+            content: '';
+            display: block;
+            height: 2px;
+            background: linear-gradient(90deg, transparent 0%, var(--accent) 40%, var(--accent-warm) 70%, transparent 100%);
+            opacity: 0.5;
         }
 
         .nav-inner {
@@ -68,6 +87,11 @@
             font-size: 16px;
             color: white;
             box-shadow: 0 0 16px rgba(14,165,233,0.3);
+            transition: box-shadow 0.2s;
+        }
+
+        .nav-brand:hover .brand-mark {
+            box-shadow: 0 0 24px rgba(14,165,233,0.5);
         }
 
         .brand-wordmark {
@@ -77,9 +101,7 @@
             letter-spacing: -0.03em;
         }
 
-        .brand-wordmark span {
-            color: var(--accent);
-        }
+        .brand-wordmark span { color: var(--accent); }
 
         /* Search */
         .nav-search {
@@ -123,9 +145,7 @@
             padding: 10px 0;
         }
 
-        .nav-search input::placeholder {
-            color: var(--text-muted-nav);
-        }
+        .nav-search input::placeholder { color: var(--text-muted-nav); }
 
         .nav-search-btn {
             background: var(--accent-warm);
@@ -173,7 +193,6 @@
         }
 
         .suggestion-item:last-child { border-bottom: none; }
-
         .suggestion-item:hover { background: rgba(14,165,233,0.1); }
 
         .suggestion-name {
@@ -198,7 +217,6 @@
             flex-shrink: 0;
         }
 
-        /* Greeting */
         .nav-greeting {
             font-size: 12.5px;
             color: var(--text-muted-nav);
@@ -207,11 +225,8 @@
             padding: 0 4px;
         }
 
-        .nav-greeting strong {
-            color: var(--text-nav);
-        }
+        .nav-greeting strong { color: var(--text-nav); }
 
-        /* Nav buttons */
         .nav-btn {
             display: inline-flex;
             align-items: center;
@@ -233,53 +248,22 @@
             border-color: rgba(255,255,255,0.1);
             background: transparent;
         }
-
         .nav-btn-ghost:hover {
             background: rgba(255,255,255,0.07);
             color: white;
             border-color: rgba(255,255,255,0.16);
         }
 
-        .nav-btn-accent {
-            background: var(--accent);
-            color: white;
-            border-color: var(--accent);
-        }
+        .nav-btn-accent { background: var(--accent); color: white; border-color: var(--accent); }
+        .nav-btn-accent:hover { background: var(--accent-hover); border-color: var(--accent-hover); color: white; }
 
-        .nav-btn-accent:hover {
-            background: var(--accent-hover);
-            border-color: var(--accent-hover);
-            color: white;
-        }
+        .nav-btn-warm { background: var(--accent-warm); color: #0f172a; border-color: var(--accent-warm); }
+        .nav-btn-warm:hover { background: #d97706; border-color: #d97706; color: #0f172a; }
 
-        .nav-btn-warm {
-            background: var(--accent-warm);
-            color: #0f172a;
-            border-color: var(--accent-warm);
-        }
+        .nav-btn-green { background: var(--accent-green); color: white; border-color: var(--accent-green); }
+        .nav-btn-green:hover { background: #059669; border-color: #059669; color: white; }
 
-        .nav-btn-warm:hover {
-            background: #d97706;
-            border-color: #d97706;
-            color: #0f172a;
-        }
-
-        .nav-btn-green {
-            background: var(--accent-green);
-            color: white;
-            border-color: var(--accent-green);
-        }
-
-        .nav-btn-green:hover {
-            background: #059669;
-            border-color: #059669;
-            color: white;
-        }
-
-        /* Cart button with badge */
-        .cart-btn {
-            position: relative;
-        }
+        .cart-btn { position: relative; }
 
         .cart-count {
             position: absolute;
@@ -296,15 +280,12 @@
             font-family: 'DM Mono', monospace;
         }
 
-        /* Divider */
         .nav-divider {
-            width: 1px;
-            height: 22px;
+            width: 1px; height: 22px;
             background: rgba(255,255,255,0.1);
             flex-shrink: 0;
         }
 
-        /* Mobile toggle */
         .nav-toggler {
             display: none;
             background: rgba(255,255,255,0.07);
@@ -402,7 +383,378 @@
             padding: 0 24px;
         }
 
+        /* ════════════════════════════════════
+           FOOTER
+        ════════════════════════════════════ */
+        .site-footer {
+            background: var(--footer-bg);
+            border-top: 1px solid var(--footer-border);
+            margin-top: auto;
+            color: #94a3b8;
+            font-size: 13.5px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Subtle top glow line */
+        .site-footer::before {
+            content: '';
+            display: block;
+            height: 1px;
+            background: linear-gradient(90deg, transparent 0%, var(--accent) 40%, var(--accent-warm) 70%, transparent 100%);
+            opacity: 0.25;
+        }
+
+        /* Decorative background blob */
+        .site-footer::after {
+            content: '';
+            position: absolute;
+            bottom: -120px;
+            right: -120px;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(14,165,233,0.06) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .footer-inner {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 56px 24px 0;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1.4fr;
+            gap: 48px;
+            padding-bottom: 48px;
+        }
+
+        /* Brand column */
+        .footer-brand-col .footer-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 14px;
+            text-decoration: none;
+        }
+
+        .footer-brand-col .brand-mark {
+            width: 36px; height: 36px;
+            background: linear-gradient(135deg, var(--accent), #0284c7);
+            border-radius: 9px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 17px;
+            color: white;
+            box-shadow: 0 0 16px rgba(14,165,233,0.25);
+            flex-shrink: 0;
+        }
+
+        .footer-wordmark {
+            font-size: 18px;
+            font-weight: 800;
+            color: white;
+            letter-spacing: -0.03em;
+        }
+
+        .footer-wordmark span { color: var(--accent); }
+
+        .footer-tagline {
+            font-size: 13px;
+            color: #64748b;
+            line-height: 1.6;
+            max-width: 260px;
+            margin-bottom: 22px;
+        }
+
+        /* Badges */
+        .footer-badges {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .footer-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: rgba(14,165,233,0.08);
+            border: 1px solid rgba(14,165,233,0.2);
+            color: #7dd3fc;
+            font-size: 11.5px;
+            font-weight: 600;
+            padding: 5px 10px;
+            border-radius: 20px;
+        }
+
+        .footer-badge.warm {
+            background: rgba(245,158,11,0.08);
+            border-color: rgba(245,158,11,0.2);
+            color: #fcd34d;
+        }
+
+        .footer-badge.green {
+            background: rgba(16,185,129,0.08);
+            border-color: rgba(16,185,129,0.2);
+            color: #6ee7b7;
+        }
+
+        /* Link columns */
+        .footer-col h5 {
+            font-size: 11px;
+            font-weight: 700;
+            color: #475569;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 16px;
+        }
+
+        .footer-links {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .footer-links a {
+            color: #64748b;
+            text-decoration: none;
+            font-size: 13.5px;
+            font-weight: 500;
+            transition: color 0.15s;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .footer-links a i {
+            font-size: 12px;
+            opacity: 0.5;
+            transition: opacity 0.15s, transform 0.15s;
+        }
+
+        .footer-links a:hover {
+            color: #e2e8f0;
+        }
+
+        .footer-links a:hover i {
+            opacity: 1;
+            transform: translateX(2px);
+        }
+
+        /* Contact column */
+        .footer-contact-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .footer-contact-list li {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            font-size: 13px;
+            color: #64748b;
+            line-height: 1.5;
+        }
+
+        .footer-contact-list li i {
+            color: var(--accent);
+            font-size: 14px;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
+        .footer-contact-list a {
+            color: #64748b;
+            text-decoration: none;
+            transition: color 0.15s;
+        }
+
+        .footer-contact-list a:hover { color: var(--accent); }
+
+        /* Social icons */
+        .footer-socials {
+            display: flex;
+            gap: 8px;
+            margin-top: 16px;
+        }
+
+        .social-icon {
+            width: 34px; height: 34px;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.08);
+            display: flex; align-items: center; justify-content: center;
+            color: #64748b;
+            font-size: 14px;
+            text-decoration: none;
+            transition: background 0.15s, color 0.15s, border-color 0.15s, transform 0.15s;
+        }
+
+        .social-icon:hover {
+            background: rgba(14,165,233,0.12);
+            border-color: rgba(14,165,233,0.3);
+            color: var(--accent);
+            transform: translateY(-2px);
+        }
+
+        /* Newsletter */
+        .footer-newsletter {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 4px;
+        }
+
+        .footer-newsletter p {
+            font-size: 12.5px;
+            color: #475569;
+            margin-bottom: 12px;
+            font-weight: 500;
+        }
+
+        .footer-newsletter-form {
+            display: flex;
+            gap: 0;
+        }
+
+        .footer-newsletter-form input {
+            flex: 1;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-right: none;
+            border-radius: 8px 0 0 8px;
+            color: white;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 12.5px;
+            padding: 9px 13px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .footer-newsletter-form input:focus {
+            border-color: var(--accent);
+        }
+
+        .footer-newsletter-form input::placeholder { color: #475569; }
+
+        .footer-newsletter-form button {
+            background: var(--accent);
+            border: none;
+            color: white;
+            padding: 9px 14px;
+            font-size: 13px;
+            font-weight: 600;
+            border-radius: 0 8px 8px 0;
+            cursor: pointer;
+            transition: background 0.15s;
+            white-space: nowrap;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .footer-newsletter-form button:hover { background: var(--accent-hover); }
+
+        /* Footer bottom bar */
+        .footer-bottom {
+            border-top: 1px solid rgba(255,255,255,0.05);
+            padding: 18px 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .footer-bottom-left {
+            font-size: 12.5px;
+            color: #334155;
+            font-weight: 500;
+        }
+
+        .footer-bottom-left a {
+            color: #475569;
+            text-decoration: none;
+            transition: color 0.15s;
+        }
+
+        .footer-bottom-left a:hover { color: var(--accent); }
+
+        .footer-bottom-right {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .footer-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.07);
+            border-radius: 20px;
+            padding: 4px 10px;
+            font-size: 11px;
+            font-weight: 600;
+            color: #334155;
+            white-space: nowrap;
+        }
+
+        .footer-pill i { font-size: 10px; }
+
+        .footer-pill.secure { color: #22c55e; background: rgba(34,197,94,0.06); border-color: rgba(34,197,94,0.15); }
+        .footer-pill.certified { color: #7dd3fc; background: rgba(14,165,233,0.06); border-color: rgba(14,165,233,0.15); }
+
+        /* ─── SCROLL TO TOP ─── */
+        #scrollTopBtn {
+            position: fixed;
+            bottom: 28px;
+            right: 24px;
+            width: 42px;
+            height: 42px;
+            background: var(--nav-bg);
+            border: 1px solid rgba(255,255,255,0.12);
+            color: var(--text-nav);
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 15px;
+            cursor: pointer;
+            z-index: 300;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+            transition: all 0.2s;
+            opacity: 0;
+            transform: translateY(10px);
+            pointer-events: none;
+        }
+
+        #scrollTopBtn.visible {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+
+        #scrollTopBtn:hover {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 24px rgba(14,165,233,0.3);
+        }
+
         /* ─── RESPONSIVE ─── */
+        @media (max-width: 1024px) {
+            .footer-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 36px;
+            }
+        }
+
         @media (max-width: 900px) {
             .nav-search { display: none; }
             .nav-greeting { display: none; }
@@ -410,6 +762,17 @@
             .nav-toggler { display: flex; }
             .mobile-nav.open { display: block; }
             .nav-inner { height: 58px; }
+        }
+
+        @media (max-width: 640px) {
+            .footer-grid {
+                grid-template-columns: 1fr;
+                gap: 32px;
+            }
+
+            .footer-inner { padding: 40px 20px 0; }
+            .footer-bottom { flex-direction: column; align-items: flex-start; gap: 10px; }
+            #scrollTopBtn { bottom: 20px; right: 16px; }
         }
 
         @media (max-width: 480px) {
@@ -433,7 +796,7 @@
 
             <!-- Desktop Search -->
             <div class="nav-search">
-                <form action="{{ url_for('main.search') }}" method="GET">
+                <form action="{{ url_for('main.search') }}" method="GET" style="position:relative;">
                     <div class="nav-search-inner">
                         <span class="nav-search-icon"><i class="bi bi-search"></i></span>
                         <input type="search" name="q" id="searchInput"
@@ -456,7 +819,6 @@
                 <div class="nav-divider"></div>
                 {% endif %}
 
-                <!-- Cart -->
                 <a href="/cart" class="nav-btn nav-btn-ghost cart-btn">
                     <i class="bi bi-cart3"></i> Cart
                     <span class="cart-count">{{ session.get('cart') | length if session.get('cart') else 0 }}</span>
@@ -484,7 +846,6 @@
                     <i class="bi bi-box-seam"></i> Pharmacy
                 </a>
                 {% elif current_user.role == "ADMIN" %}
-                
                 <a href="{{ url_for('admin.dashboard') }}" class="nav-btn nav-btn-accent">
                     <i class="bi bi-shield-check"></i> Admin
                 </a>
@@ -508,10 +869,6 @@
             </div>
 
             <!-- Mobile: Cart + Toggler -->
-            <div style="display:flex; align-items:center; gap:8px; margin-left:auto;" class="d-lg-flex d-none d-sm-flex">
-                <!-- shown via css toggle above -->
-            </div>
-
             <a href="/cart" class="nav-btn nav-btn-ghost cart-btn" id="mobileCartBtn" style="display:none; position:relative;">
                 <i class="bi bi-cart3"></i>
                 <span class="cart-count">{{ session.get('cart') | length if session.get('cart') else 0 }}</span>
@@ -526,7 +883,6 @@
         <!-- Mobile Drawer -->
         <div class="mobile-nav" id="mobileNav">
 
-            <!-- Mobile Search -->
             <form class="mobile-search" action="{{ url_for('main.search') }}" method="GET">
                 <input type="search" name="q" placeholder="Search medicines..."
                        value="{{ request.args.get('q', '') }}" autocomplete="off">
@@ -614,9 +970,124 @@
         {% block content %}{% endblock %}
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- ══════════════════════════════════════
+         FOOTER
+    ══════════════════════════════════════ -->
+    <footer class="site-footer">
+        <div class="footer-inner">
+            <div class="footer-grid">
 
-    <script>
+                <!-- ── Brand Column ── -->
+                <div class="footer-brand-col">
+                    <a href="/" class="footer-logo">
+                        <div class="brand-mark"><i class="bi bi-heart-pulse-fill"></i></div>
+                        <div class="footer-wordmark">Jeevan<span>Meds</span></div>
+                    </a>
+                    <p class="footer-tagline">
+                        Your trusted online pharmacy — delivering genuine medicines,
+                        fast and safely to your doorstep across India.
+                    </p>
+                    <div class="footer-badges">
+                        <span class="footer-badge"><i class="bi bi-patch-check-fill"></i> Licensed Pharmacy</span>
+                        <span class="footer-badge warm"><i class="bi bi-shield-lock-fill"></i> Secure Payments</span>
+                        <span class="footer-badge green"><i class="bi bi-truck"></i> Fast Delivery</span>
+                    </div>
+                </div>
+
+                <!-- ── Quick Links ── -->
+                <div class="footer-col">
+                    <h5>Quick Links</h5>
+                    <ul class="footer-links">
+                        <li><a href="/"><i class="bi bi-chevron-right"></i> Home</a></li>
+                        <li><a href="{{ url_for('main.search') }}"><i class="bi bi-chevron-right"></i> Browse Medicines</a></li>
+                        <li><a href="/cart"><i class="bi bi-chevron-right"></i> My Cart</a></li>
+                        <li><a href="/order/checkout"><i class="bi bi-chevron-right"></i> Checkout</a></li>
+                        {% if current_user.is_authenticated %}
+                        <li><a href="{{ url_for('order.history') }}"><i class="bi bi-chevron-right"></i> Order History</a></li>
+                        {% endif %}
+                        {% if current_user.role == "USER" %}
+                        <li><a href="{{ url_for('main.expired_history') }}"><i class="bi bi-chevron-right"></i> Expired Medicines</a></li>
+                        {% endif %}
+                    </ul>
+                </div>
+
+                <!-- ── Policies ── -->
+                <div class="footer-col">
+                    <h5>Policies</h5>
+                    <ul class="footer-links">
+                        <li><a href="#"><i class="bi bi-chevron-right"></i> Privacy Policy</a></li>
+                        <li><a href="#"><i class="bi bi-chevron-right"></i> Terms of Service</a></li>
+                        <li><a href="#"><i class="bi bi-chevron-right"></i> Return & Refund</a></li>
+                        <li><a href="#"><i class="bi bi-chevron-right"></i> Shipping Policy</a></li>
+                        <li><a href="#"><i class="bi bi-chevron-right"></i> FAQ</a></li>
+                    </ul>
+                </div>
+
+                <!-- ── Contact & Newsletter ── -->
+                <div class="footer-col">
+                    <h5>Contact Us</h5>
+                    <ul class="footer-contact-list">
+                        <li>
+                            <i class="bi bi-geo-alt-fill"></i>
+                            <span>12 MG Road, Indore, Madhya Pradesh — 452001</span>
+                        </li>
+                        <li>
+                            <i class="bi bi-telephone-fill"></i>
+                            <a href="tel:+911234567890">+91 12345 67890</a>
+                        </li>
+                        <li>
+                            <i class="bi bi-envelope-fill"></i>
+                            <a href="/cdn-cgi/l/email-protection#c8bbbdb8b8a7babc88a2adadbea9a6a5adacbbe6a1a6"><span class="__cf_email__" data-cfemail="483b3d3838273a3c08222d2d3e2926252d2c3b662126">[email&#160;protected]</span></a>
+                        </li>
+                        <li>
+                            <i class="bi bi-clock-fill"></i>
+                            <span>Mon–Sat, 9 AM – 8 PM</span>
+                        </li>
+                    </ul>
+
+                    <!-- Social icons -->
+                    <div class="footer-socials">
+                        <a href="#" class="social-icon" title="Facebook"><i class="bi bi-facebook"></i></a>
+                        <a href="#" class="social-icon" title="Instagram"><i class="bi bi-instagram"></i></a>
+                        <a href="#" class="social-icon" title="Twitter / X"><i class="bi bi-twitter-x"></i></a>
+                        <a href="#" class="social-icon" title="WhatsApp"><i class="bi bi-whatsapp"></i></a>
+                    </div>
+
+                    <!-- Newsletter -->
+                    <div class="footer-newsletter" style="margin-top:18px;">
+                        <p><i class="bi bi-bell-fill" style="color:var(--accent-warm); margin-right:5px;"></i> Get health tips & offers</p>
+                        <div class="footer-newsletter-form">
+                            <input type="email" placeholder="Your email address">
+                            <button type="button">Subscribe</button>
+                        </div>
+                    </div>
+                </div>
+
+            </div><!-- /footer-grid -->
+
+            <!-- Bottom bar -->
+            <div class="footer-bottom">
+                <div class="footer-bottom-left">
+                    © 2025 <strong style="color:#475569;">DawaiTrack</strong>. All rights reserved. &nbsp;·&nbsp;
+                    <a href="#">Privacy</a> &nbsp;·&nbsp;
+                    <a href="#">Terms</a>
+                </div>
+                <div class="footer-bottom-right">
+                    <span class="footer-pill secure"><i class="bi bi-shield-check"></i> SSL Secured</span>
+                    <span class="footer-pill certified"><i class="bi bi-award"></i> CDSCO Licensed</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ── Scroll to Top Button ── -->
+    <button id="scrollTopBtn" title="Back to top" aria-label="Scroll to top">
+        <i class="bi bi-arrow-up"></i>
+    </button>
+
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+        <script>
         // ── Search Suggestions ──
         const searchInput = document.getElementById("searchInput");
         const suggestionBox = document.getElementById("suggestionBox");
@@ -658,7 +1129,6 @@
         const togglerIcon = document.getElementById("togglerIcon");
         const mobileCartBtn = document.getElementById("mobileCartBtn");
 
-        // Show mobile cart btn on small screens
         function checkMobile() {
             if (window.innerWidth <= 900) {
                 mobileCartBtn.style.display = "inline-flex";
@@ -674,6 +1144,19 @@
         toggler.addEventListener("click", () => {
             const isOpen = mobileNav.classList.toggle("open");
             togglerIcon.className = isOpen ? "bi bi-x-lg" : "bi bi-list";
+        });
+
+        // ── Scroll To Top ──
+        const scrollBtn = document.getElementById("scrollTopBtn");
+        window.addEventListener("scroll", () => {
+            if (window.scrollY > 300) {
+                scrollBtn.classList.add("visible");
+            } else {
+                scrollBtn.classList.remove("visible");
+            }
+        });
+        scrollBtn.addEventListener("click", () => {
+            window.scrollTo({ top: 0, behavior: "smooth" });
         });
     </script>
 
