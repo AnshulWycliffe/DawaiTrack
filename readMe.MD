@@ -7,7 +7,7 @@
 ![MongoDB](https://img.shields.io/badge/MongoDB-Database-green.svg)
 ![License](https://img.shields.io/badge/License-MIT-yellow.svg)
 ![Status](https://img.shields.io/badge/Project-Active-brightgreen.svg)
-
+![Vercel](https://vercelbadge.vercel.app/api/anshulwycliffes/dawaitrack)
 ---
 
 ## 📌 Overview
