@@ -1,4 +1,7 @@
-# 🟢 DawaiTrack
+<h1>
+  <img src="app/static/project.ico" width="30" height="30" style="vertical-align: middle;">
+  DawaiTrack
+</h1>
 
 ### Smart Medicine Platform with Expired Medicine Take-Back System
 
