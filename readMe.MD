@@ -2,6 +2,7 @@
   <img src="app/static/project.ico" width="30" height="30" style="vertical-align: middle;">
   DawaiTrack
 </h1>
+<img src="img/overview.png" style="vertical-align: middle;">
 
 ### Smart Medicine Platform with Expired Medicine Take-Back System
 
@@ -309,14 +310,18 @@ DawaiTrack/
 
 ## 📸 Screenshots
 
-> Replace these with actual images
+> <img src="img/home.png"> Home Page
 
-* Home Page
-* Cart System
-* Order History
-* Expired Request
-* Pharmacy Panel
-* Admin Dashboard
+> <img src="img/medicine.png"> Medicine Search Page
+
+> <img src="img/product.png"> Product Detail Page
+
+> <img src="img/expired.png"> Expired Medicine Page (User)
+
+> <img src="img/pharmacy.png"> Expired Medicine Request (Pharmacy Console)
+
+> <img src="img/admin.png"> Audit Log (Admin Panel)
+
 
 ---
 
