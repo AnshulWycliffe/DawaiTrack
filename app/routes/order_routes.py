@@ -8,7 +8,7 @@ from app.models.medicine import Medicine
 from app.services.inventory_service import deduct_stock,check_stock
 from app.config.constants import ORDER_STATUS
 from app.utils.audit_logger import log_action
-
+from io import BytesIO
 
 order_bp = Blueprint("order", __name__, url_prefix="/order")
 
@@ -423,10 +423,12 @@ def invoice(order_id):
     invoice_dir = os.path.join(os.getcwd(), "invoices")
     os.makedirs(invoice_dir, exist_ok=True)
 
-    file_path = os.path.join(invoice_dir, f"invoice_{order.id}.pdf")
-
+    # FILE PATH REMOVED BECAUSE OF SERVLESS FUNCTION DOES NOT PROVIED WRITE OPERATION
+    # file_path = os.path.join(invoice_dir, f"invoice_{order.id}.pdf")
+    buffer = BytesIO()
     # (Re-)generate the PDF
-    _build_invoice(file_path, order)
+    _build_invoice(buffer, order)
+    buffer.seek(0)
     log_action(
         "INVOICE_GENERATED",
         "Order",
@@ -434,7 +436,7 @@ def invoice(order_id):
         f"Invoice generate"
     )
     return send_file(
-        file_path,
+        buffer,
         mimetype="application/pdf",
         as_attachment=True,
         download_name=f"DawaiTrack_Invoice_{order.id}.pdf",
